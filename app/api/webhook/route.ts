@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN
+const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN
+const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID
+
 export async function GET(req: NextRequest) {
   const url = new URL(req.url)
   const mode = url.searchParams.get('hub.mode')
   const token = url.searchParams.get('hub.verify_token')
   const challenge = url.searchParams.get('hub.challenge')
 
-  if (mode === 'subscribe' && token === 'my_verify_token') {
+  if (mode === 'subscribe' && token === VERIFY_TOKEN) {
     return new Response(challenge || '', { status: 200 })
   }
 
@@ -31,12 +35,20 @@ export async function POST(req: NextRequest) {
   console.log('From:', from)
   console.log('Text:', text)
 
+  if (!ACCESS_TOKEN || !PHONE_NUMBER_ID) {
+    console.error('Missing WhatsApp environment variables')
+    return NextResponse.json(
+      { status: 'missing_env_vars' },
+      { status: 500 }
+    )
+  }
+
   const response = await fetch(
-    'https://graph.facebook.com/v18.0/1052869794579826/messages',
+    `https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`,
     {
       method: 'POST',
       headers: {
-        Authorization: 'Bearer EAAXe9BE7rZCcBRPmAQefDw5wDEjJQrnlCz7ANm0SEoprHV39CsTvXNadqLUGHBQED7l1WOdfPZAfm7ppZAy9JNZCz2rjusMIQkhZAMD8g7YShb65G7SUMoAU8hIbRmx1rQZCug6l0ZAAXCJ9wBtyZAUPE39kgkwrt6tIm0KomcZAUVLjmcJRWjlagkXZAUVmkrVFE3so4Homn1ZBwwXOw7zqoZBYZASBA0wmRtsNJu9JNTwjqHHhgLeF5B6Kqm9TgKhZBnLYmjZC0ZAnIjStpCwg5uGfWz6WPqZB3P40VqIUZD',
+        Authorization: `Bearer ${ACCESS_TOKEN}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
