@@ -25,15 +25,23 @@ export async function POST(req: NextRequest) {
   const message = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0]
 
   if (!message) {
-    console.log('⚠️ No message found, ignoring event')
+    console.log('No message found, ignoring event')
     return NextResponse.json({ status: 'ignored' })
   }
 
   const from = message.from
-  const text = message.text?.body || ''
+  const text = message.text?.body?.trim() || ''
 
   console.log('From:', from)
   console.log('Text:', text)
+
+  if (!ACCESS_TOKEN || !PHONE_NUMBER_ID) {
+    console.error('Missing WhatsApp environment variables')
+    return NextResponse.json(
+      { status: 'missing_env_vars' },
+      { status: 500 }
+    )
+  }
 
   let replyText = 'Welcome to PMI Sticker System 🚗'
 
@@ -41,23 +49,30 @@ export async function POST(req: NextRequest) {
     replyText = `Welcome to PMI Sticker System 🚗
 
 Choose an option:
-1️⃣ Register Vehicle
-2️⃣ Check Status
-3️⃣ Contact Support`
+1 - Register Vehicle
+2 - Check Status
+3 - Contact Support`
   }
 
-  await fetch(`https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER_ID}/messages`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      messaging_product: 'whatsapp',
-      to: from,
-      text: { body: replyText },
-    }),
-  })
+  const response = await fetch(
+    `https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${ACCESS_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to: from,
+        text: { body: replyText },
+      }),
+    }
+  )
+
+  const responseText = await response.text()
+  console.log('WhatsApp send status:', response.status)
+  console.log('WhatsApp send response:', responseText)
 
   return NextResponse.json({ status: 'replied' })
 }
