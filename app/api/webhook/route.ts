@@ -22,11 +22,16 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     console.log('FULL BODY:', JSON.stringify(body, null, 2))
 
-    const change = body?.entry?.[0]?.changes?.[0]?.value
-    const message = change?.messages?.[0]
+    const entry = body?.entry?.[0]
+    const change = entry?.changes?.[0]
+    const value = change?.value
+    const message = value?.messages?.[0]
 
     if (!message) {
-      console.log('IGNORED EVENT: no inbound message')
+      console.log(
+        'NO INBOUND MESSAGE. FULL PAYLOAD:',
+        JSON.stringify(body, null, 2)
+      )
       return NextResponse.json({ status: 'ignored' })
     }
 
@@ -38,15 +43,26 @@ export async function POST(req: NextRequest) {
 
     if (!ACCESS_TOKEN || !PHONE_NUMBER_ID) {
       console.error('Missing WhatsApp environment variables')
-      return NextResponse.json({ status: 'missing_env_vars' }, { status: 500 })
+      return NextResponse.json(
+        { status: 'missing_env_vars' },
+        { status: 500 }
+      )
     }
 
-    const replyText = `Welcome to PMI Sticker System 🚗
+    let replyText = `Welcome to PMI Sticker System 🚗
 
 Reply:
 1 - Register Vehicle
 2 - Check Status
 3 - Contact Support`
+
+    if (text === '1') {
+      replyText = 'Please enter your unit number.'
+    } else if (text === '2') {
+      replyText = 'Please enter your plate number or request number.'
+    } else if (text === '3') {
+      replyText = 'A management team member will contact you shortly.'
+    }
 
     const response = await fetch(
       `https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`,
