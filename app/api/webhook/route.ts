@@ -108,16 +108,16 @@ const FEEDBACK_MSG = {
     const good = score === null || score >= 4
     return ({
       en: good
-        ? `🙏 Thank you for the great rating! We appreciate your feedback.`
-        : `🙏 Thank you for your feedback. We'll review this interaction and work to improve.`,
+        ? `🙏 Thank you so much! It was my pleasure to help — Maia 🌸`
+        : `🙏 Thank you for letting us know. I'll make sure the team looks into this. — Maia 🌸`,
       es: good
-        ? `🙏 ¡Gracias por la excelente calificación! Lo apreciamos mucho.`
-        : `🙏 Gracias por tu opinión. La revisaremos para mejorar nuestro servicio.`,
+        ? `🙏 ¡Muchas gracias! Fue un placer ayudarte — Maia 🌸`
+        : `🙏 Gracias por avisarnos. Me aseguraré de que el equipo lo revise. — Maia 🌸`,
       pt: good
-        ? `🙏 Obrigado pela ótima avaliação! Ficamos felizes em ajudar.`
-        : `🙏 Obrigado pelo seu feedback. Vamos revisá-lo e trabalhar para melhorar.`,
-      fr: `🙏 Merci pour votre retour!`,
-      he: `🙏 תודה על המשוב!`,
+        ? `🙏 Muito obrigada! Foi um prazer te ajudar — Maia 🌸`
+        : `🙏 Obrigada por nos avisar. Vou garantir que a equipe revise isso. — Maia 🌸`,
+      fr: `🙏 Merci beaucoup! C'était un plaisir — Maia 🌸`,
+      he: `🙏 תודה רבה! היה לי תענוג לעזור — מאיה 🌸`,
       ru: `🙏 Спасибо за отзыв!`,
     } as Record<string, string>)[lang] ?? `🙏 Thank you for your feedback!`
   },
@@ -587,18 +587,18 @@ async function handleMenuOption(ctx: CallerContext, option: string): Promise<str
     case 'emergency':
       await alertEmergencyTeam(ctx)
       return translate(lang, {
-        en: `🚨 *EMERGENCY*\n\nOur team has been alerted.\n\nImmediate danger? Call 911.\n📞 ${process.env.EMERGENCY_PHONE}`,
-        es: `🚨 Equipo notificado. Peligro: 911.\n📞 ${process.env.EMERGENCY_PHONE}`,
-        pt: `🚨 Equipe alertada. Perigo: 911.\n📞 ${process.env.EMERGENCY_PHONE}`,
+        en: `🚨 *EMERGENCY — Maia here*\n\nI've alerted our team right away.\n\nImmediate danger? Please call 911 now.\n📞 Emergency line: ${process.env.EMERGENCY_PHONE}`,
+        es: `🚨 *EMERGENCIA — Soy Maia*\n\nYa alerté a nuestro equipo.\n\nPeligro inmediato: llama al 911.\n📞 ${process.env.EMERGENCY_PHONE}`,
+        pt: `🚨 *EMERGÊNCIA — Aqui é a Maia*\n\nJá avisei nossa equipe.\n\nPerigo imediato: ligue para o 911.\n📞 ${process.env.EMERGENCY_PHONE}`,
       })
 
     case 'staff':
       await saveConversationState(ctx.phone, 'staff_handoff', 'waiting', { msgCount: 0 })
       await notifyStaff(ctx, 'Resident requested to speak with staff')
       return translate(lang, {
-        en: `💬 A team member will be with you shortly.\n\nResponse time: ~2 hours during business hours.\nOr call: ${process.env.OFFICE_PHONE}`,
-        es: `💬 Un miembro del equipo te contactará pronto. ~2 horas en horario laboral.`,
-        pt: `💬 Um membro da equipe entrará em contato em breve. ~2 horas no horário comercial.`,
+        en: `💬 Of course! I'm connecting you with our team right now 🌸\n\nExpect a reply within ~2 business hours.\nOr call us: ${process.env.OFFICE_PHONE}`,
+        es: `💬 ¡Claro! Te estoy conectando con nuestro equipo ahora 🌸\n\nRespuesta en ~2 horas hábiles.`,
+        pt: `💬 Claro! Estou te conectando com nossa equipe agora 🌸\n\nResposta em ~2 horas úteis.`,
       })
 
     case 'agent_portal':
@@ -660,7 +660,7 @@ async function continueFlow(
         en: `Vehicle color:`, es: `Color del vehículo:`, pt: `Cor do veículo:` })
     }
     if (step === 'awaiting_color') {
-      const vehicle = { ...data, color: message } as Record<string, string>
+      const vehicle = { ...data, color: message }
       await createStickerRequest(ctx, vehicle as Record<string, string>)
       await clearConversationState(ctx.phone)
       // ✅ FEEDBACK — sticker registered
@@ -755,9 +755,9 @@ async function continueFlow(
     }
 
     return translate(ctx.language, {
-      en: `✉️ Message forwarded to our team. We'll reply soon.`,
-      es: `✉️ Mensaje enviado al equipo. Te responderemos pronto.`,
-      pt: `✉️ Mensagem encaminhada. Responderemos em breve.`,
+      en: `✉️ Got it! I've passed your message to our team. They'll be in touch soon 🌸`,
+      es: `✉️ ¡Listo! Le pasé tu mensaje al equipo. Te responderán pronto 🌸`,
+      pt: `✉️ Pronto! Repassei sua mensagem para a equipe. Eles entrarão em contato em breve 🌸`,
     })
   }
 
@@ -773,8 +773,8 @@ async function continueFlow(
 async function getAIResponse(ctx: CallerContext, message: string, mode = 'general'): Promise<string> {
   const langName = LANGUAGE_NAMES[ctx.language] ?? 'English'
   const system   = mode === 'documents'
-    ? `You are a property management assistant. Respond in ${langName}. Answer questions about leases, rules, and policies concisely (under 280 chars for SMS).`
-    : `You are a property management assistant. Respond in ${langName}. You are speaking with ${ctx.name}, a ${ctx.persona.replace(/_/g, ' ')}. Be warm, professional, concise.`
+    ? `You are Maia, a warm and caring virtual assistant for PMI Top Florida Properties. Respond in ${langName}. Answer questions about leases, rules, and policies concisely. If unsure, warmly offer to connect them with the team.`
+    : `You are Maia, a warm and caring virtual assistant for PMI Top Florida Properties, a professional property management company in South Florida. Respond in ${langName}. You are speaking with ${ctx.name}, a ${ctx.persona.replace(/_/g, ' ')}. Be warm, friendly and concise like a helpful neighbor who knows their community. Never say you are an AI unless directly asked.`
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -1153,23 +1153,23 @@ function buildMainMenu(ctx: CallerContext): string {
   // ── Dedicated menu for known real estate agents ───────────
   if (ctx.persona === 'real_estate_agent') {
     return translate(ctx.language, {
-      en: `👋 Hello${first}! Welcome to the Agent Portal.\n\n1 - 🏠 I represent an Owner / Seller\n2 - 🔑 I represent a Buyer\n3 - 📋 I represent a Tenant / Renter\n8 - 💬 Speak with our team\n\nReply with a number.`,
-      es: `👋 ¡Hola${first}! Bienvenido al Portal de Agentes.\n\n1 - 🏠 Represento a un Propietario\n2 - 🔑 Represento a un Comprador\n3 - 📋 Represento a un Inquilino\n8 - 💬 Hablar con el equipo`,
-      pt: `👋 Olá${first}! Bem-vindo ao Portal de Corretores.\n\n1 - 🏠 Represento um Proprietário\n2 - 🔑 Represento um Comprador\n3 - 📋 Represento um Inquilino\n8 - 💬 Falar com a equipe`,
-      fr: `👋 Bonjour${first}! Bienvenue sur le Portail Agent.\n\n1 - 🏠 Je représente un Propriétaire\n2 - 🔑 Je représente un Acheteur\n3 - 📋 Je représente un Locataire\n8 - 💬 Parler à l'équipe`,
-      he: `👋 שלום${first}! ברוך הבא לפורטל הסוכנים.\n\n1 - 🏠 אני מייצג בעלים\n2 - 🔑 אני מייצג קונה\n3 - 📋 אני מייצג שוכר\n8 - 💬 דבר עם הצוות`,
-      ru: `👋 Привет${first}! Добро пожаловать на Портал Агентов.\n\n1 - 🏠 Представляю владельца\n2 - 🔑 Представляю покупателя\n3 - 📋 Представляю арендатора\n8 - 💬 Команда`,
+      en: `👋 Hi${first}! I'm Maia 🌸 Welcome to the PMI Agent Portal.\n\n1 - 🏠 I represent an Owner / Seller\n2 - 🔑 I represent a Buyer\n3 - 📋 I represent a Tenant / Renter\n8 - 💬 Speak with our team\n\nReply with a number.`,
+      es: `👋 ¡Hola${first}! Soy Maia 🌸 Bienvenido al Portal de Agentes PMI.\n\n1 - 🏠 Represento a un Propietario\n2 - 🔑 Represento a un Comprador\n3 - 📋 Represento a un Inquilino\n8 - 💬 Hablar con el equipo`,
+      pt: `👋 Olá${first}! Sou a Maia 🌸 Bem-vindo ao Portal de Corretores PMI.\n\n1 - 🏠 Represento um Proprietário\n2 - 🔑 Represento um Comprador\n3 - 📋 Represento um Inquilino\n8 - 💬 Falar com a equipe`,
+      fr: `👋 Bonjour${first}! Je suis Maia 🌸 Bienvenue sur le Portail Agent PMI.\n\n1 - 🏠 Je représente un Propriétaire\n2 - 🔑 Je représente un Acheteur\n3 - 📋 Je représente un Locataire\n8 - 💬 Parler à l'équipe`,
+      he: `👋 שלום${first}! אני מאיה 🌸 ברוך הבא לפורטל הסוכנים של PMI.\n\n1 - 🏠 אני מייצג בעלים\n2 - 🔑 אני מייצג קונה\n3 - 📋 אני מייצג שוכר\n8 - 💬 דבר עם הצוות`,
+      ru: `👋 Привет${first}! Я Мая 🌸 Добро пожаловать на Портал Агентов PMI.\n\n1 - 🏠 Представляю владельца\n2 - 🔑 Представляю покупателя\n3 - 📋 Представляю арендатора\n8 - 💬 Команда`,
     })
   }
 
   // ── Standard menu for all other personas ─────────────────
   return translate(ctx.language, {
-    en: `👋 Hello${first}!\n\n1 - 🚗 Parking Sticker\n2 - 🔧 Maintenance\n3 - 💰 Payment\n4 - 📄 Documents\n5 - 📅 Schedule\n6 - 🏠 My Account\n7 - 🚨 Emergency\n8 - 💬 Staff\n9 - 🏡 Real Estate Agent\n\nReply with a number.`,
-    es: `👋 ¡Hola${first}!\n\n1 - 🚗 Calcomanía\n2 - 🔧 Mantenimiento\n3 - 💰 Pagos\n4 - 📄 Documentos\n5 - 📅 Cita\n6 - 🏠 Mi Cuenta\n7 - 🚨 Emergencia\n8 - 💬 Equipo\n9 - 🏡 Agente Inmobiliario`,
-    pt: `👋 Olá${first}!\n\n1 - 🚗 Adesivo\n2 - 🔧 Manutenção\n3 - 💰 Pagamentos\n4 - 📄 Documentos\n5 - 📅 Agendar\n6 - 🏠 Minha Conta\n7 - 🚨 Emergência\n8 - 💬 Equipe\n9 - 🏡 Corretor Imobiliário`,
-    fr: `👋 Bonjour${first}!\n\n1 - 🚗 Vignette\n2 - 🔧 Maintenance\n3 - 💰 Paiements\n4 - 📄 Documents\n5 - 📅 Rendez-vous\n6 - 🏠 Mon Compte\n7 - 🚨 Urgence\n8 - 💬 Équipe\n9 - 🏡 Agent Immobilier`,
-    he: `👋 שלום${first}!\n\n1-🚗 מדבקה  2-🔧 תחזוקה  3-💰 תשלומים\n4-📄 מסמכים  5-📅 פגישה  6-🏠 חשבון\n7-🚨 חירום  8-💬 צוות  9-🏡 סוכן`,
-    ru: `👋 Привет${first}!\n\n1-🚗 Наклейка  2-🔧 Ремонт  3-💰 Платежи\n4-📄 Документы  5-📅 Запись  6-🏠 Аккаунт\n7-🚨 Экстренно  8-💬 Команда  9-🏡 Агент`,
+    en: `👋 Hi${first}! I'm Maia, your PMI assistant 🌸\n\n1 - 🚗 Parking Sticker\n2 - 🔧 Maintenance\n3 - 💰 Payment\n4 - 📄 Documents\n5 - 📅 Schedule\n6 - 🏠 My Account\n7 - 🚨 Emergency\n8 - 💬 Staff\n9 - 🏡 Real Estate Agent\n\nReply with a number.`,
+    es: `👋 ¡Hola${first}! Soy Maia, tu asistente de PMI 🌸\n\n1 - 🚗 Calcomanía\n2 - 🔧 Mantenimiento\n3 - 💰 Pagos\n4 - 📄 Documentos\n5 - 📅 Cita\n6 - 🏠 Mi Cuenta\n7 - 🚨 Emergencia\n8 - 💬 Equipo\n9 - 🏡 Agente Inmobiliario`,
+    pt: `👋 Olá${first}! Sou a Maia, sua assistente da PMI 🌸\n\n1 - 🚗 Adesivo\n2 - 🔧 Manutenção\n3 - 💰 Pagamentos\n4 - 📄 Documentos\n5 - 📅 Agendar\n6 - 🏠 Minha Conta\n7 - 🚨 Emergência\n8 - 💬 Equipe\n9 - 🏡 Corretor Imobiliário`,
+    fr: `👋 Bonjour${first}! Je suis Maia, votre assistante PMI 🌸\n\n1 - 🚗 Vignette\n2 - 🔧 Maintenance\n3 - 💰 Paiements\n4 - 📄 Documents\n5 - 📅 Rendez-vous\n6 - 🏠 Mon Compte\n7 - 🚨 Urgence\n8 - 💬 Équipe\n9 - 🏡 Agent Immobilier`,
+    he: `👋 שלום${first}! אני מאיה, העוזרת של PMI 🌸\n\n1-🚗 מדבקה  2-🔧 תחזוקה  3-💰 תשלומים\n4-📄 מסמכים  5-📅 פגישה  6-🏠 חשבון\n7-🚨 חירום  8-💬 צוות  9-🏡 סוכן`,
+    ru: `👋 Привет${first}! Я Мая, ваш ассистент PMI 🌸\n\n1-🚗 Наклейка  2-🔧 Ремонт  3-💰 Платежи\n4-📄 Документы  5-📅 Запись  6-🏠 Аккаунт\n7-🚨 Экстренно  8-💬 Команда  9-🏡 Агент`,
   })
 }
 
@@ -1318,7 +1318,7 @@ async function sendReply(phone: string, text: string, channel: Channel) {
   const to = channel === 'whatsapp' ? `whatsapp:${phone}` : phone
 
   if (channel === 'sms' && text.length > 1500) {
-    for (const chunk of text.match(/.{1,1500}/g) ?? [text])
+    for (const chunk of text.match(/.{1,1500}/gs) ?? [text])
       await twilioClient.messages.create({ from, to, body: chunk })
     return
   }
