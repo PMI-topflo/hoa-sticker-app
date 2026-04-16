@@ -209,10 +209,29 @@ async function handleTextChannel(
     }
 
   } else {
-    const menuTrigger = detectMenuTrigger(message)
-    replyText = menuTrigger
-      ? await handleMenuOption(ctx, menuTrigger)
-      : await getAIResponse(ctx, message)
+    const isGreeting = detectMenuTrigger(message) === 'main_menu'
+
+    if (isGreeting && ctx.persona !== 'unknown') {
+      // Known contact — warm personal greeting first
+      const greeting = buildPersonalGreeting(ctx)
+      await sendReply(phone, greeting, channel)
+      await new Promise(r => setTimeout(r, 1500))
+      // Then conversational prompt — no menu
+      replyText = translate(ctx.language, {
+        en: `Just tell me what you need and I'll take care of it! 😊`,
+        es: `¡Solo dime qué necesitas y yo me encargo! 😊`,
+        pt: `É só me dizer o que você precisa e eu resolvo! 😊`,
+        fr: `Dites-moi simplement ce dont vous avez besoin! 😊`,
+        he: `פשוט תגיד לי מה אתה צריך ואני אטפל בזה! 😊`,
+        ru: `Просто скажите что вам нужно и я позабочусь! 😊`,
+      })
+    } else if (isGreeting && ctx.persona === 'unknown') {
+      // Unknown contact — standard greeting with menu
+      replyText = buildMainMenu(ctx)
+    } else {
+      // All other messages — Maia thinks and responds intelligently
+      replyText = await getMaiaIntelligentResponse(ctx, message)
+    }
   }
 
   await sendReply(phone, replyText, channel)
@@ -510,6 +529,127 @@ async function lookupRentvineByPhone(phone: string): Promise<{
 }
 
 // ============================================================
+// RENTVINE — FULL CONTACT DATA FETCHER
+// Pulls lease, balance, unit, work orders for residential contacts
+// ============================================================
+
+interface RentvineContactData {
+  name:           string
+  email:          string | null
+  phone:          string | null
+  unitAddress:    string | null
+  leaseStart:     string | null
+  leaseEnd:       string | null
+  balance:        number | null
+  pastDue:        number | null
+  openWorkOrders: number
+  type:           'owner' | 'tenant' | 'vendor'
+}
+
+async function getRentvineContactData(
+  contactId: string,
+  type: PersonaType
+): Promise<RentvineContactData | null> {
+  const creds = Buffer.from(
+    `${process.env.RENTVINE_ACCESS_KEY}:${process.env.RENTVINE_SECRET}`
+  ).toString('base64')
+  const h = { Authorization: `Basic ${creds}`, 'Content-Type': 'application/json' }
+  const base = process.env.RENTVINE_BASE_URL!
+
+  try {
+    // ── Get contact details ──────────────────────────────────
+    const epMap: Record<string, string> = {
+      residential_owner:  'contacts/owners',
+      residential_tenant: 'contacts/tenants',
+      residential_vendor: 'contacts/vendors',
+    }
+    const ep      = epMap[type] ?? 'contacts/tenants'
+    const cRes    = await fetch(`${base}/${ep}/${contactId}`, { headers: h })
+    const contact = await cRes.json()
+
+    // ── Get lease info ───────────────────────────────────────
+    let leaseStart = null, leaseEnd = null,
+        balance = null, pastDue = null,
+        unitAddress = null, openWorkOrders = 0
+
+    if (type === 'residential_tenant' || type === 'residential_owner') {
+      const lRes   = await fetch(`${base}/leases/export`, { headers: h })
+      const leases = await lRes.json()
+      const lease  = leases?.data?.find((l: {
+        lease: { tenants?: { contactID: number }[]; owners?: { contactID: number }[] }
+        balances: { unpaidTotalAmount: number; pastDueTotalAmount: number }
+        unit:     { address: string }
+        leaseStartDate: string
+        leaseEndDate:   string
+      }) => {
+        const contacts = type === 'residential_tenant'
+          ? l.lease?.tenants
+          : l.lease?.owners
+        return contacts?.some((c: { contactID: number }) =>
+          String(c.contactID) === contactId)
+      })
+
+      if (lease) {
+        leaseStart   = lease.leaseStartDate
+        leaseEnd     = lease.leaseEndDate
+        balance      = lease.balances?.unpaidTotalAmount ?? null
+        pastDue      = lease.balances?.pastDueTotalAmount ?? null
+        unitAddress  = lease.unit?.address ?? null
+      }
+
+      // ── Get open work orders ─────────────────────────────
+      const wRes  = await fetch(`${base}/maintenance/work-orders?status=open`, { headers: h })
+      const wJson = await wRes.json()
+      openWorkOrders = wJson?.data?.filter((w: {
+        contactID?: number
+      }) => String(w.contactID) === contactId).length ?? 0
+    }
+
+    return {
+      name:        contact?.data?.name ?? contact?.name ?? 'Unknown',
+      email:       contact?.data?.email ?? contact?.email ?? null,
+      phone:       contact?.data?.phone ?? contact?.phone ?? null,
+      unitAddress,
+      leaseStart,
+      leaseEnd,
+      balance,
+      pastDue,
+      openWorkOrders,
+      type: type === 'residential_owner' ? 'owner'
+          : type === 'residential_vendor' ? 'vendor' : 'tenant',
+    }
+  } catch (err) {
+    console.error('[RENTVINE DATA]', err)
+    return null
+  }
+}
+
+// ── Build Rentvine context string for Maia's AI prompt ───────────
+async function buildRentvineContext(ctx: CallerContext): Promise<string> {
+  if (!ctx.rentvineContactId || ctx.division !== 'residential') return ''
+
+  const data = await getRentvineContactData(ctx.rentvineContactId, ctx.persona)
+  if (!data) return ''
+
+  const lines = [
+    `Rentvine Contact Type: ${data.type}`,
+    data.unitAddress  ? `Unit Address: ${data.unitAddress}` : '',
+    data.leaseStart   ? `Lease Start: ${data.leaseStart}` : '',
+    data.leaseEnd     ? `Lease End: ${data.leaseEnd}` : '',
+    data.balance !== null ? `Current Balance: $${data.balance.toFixed(2)}` : '',
+    data.pastDue !== null && data.pastDue > 0
+      ? `Past Due: $${data.pastDue.toFixed(2)} ⚠️` : '',
+    data.openWorkOrders > 0
+      ? `Open Work Orders: ${data.openWorkOrders}` : '',
+  ].filter(Boolean)
+
+  return lines.length ? '
+Rentvine Data:
+' + lines.join('
+') : ''
+}
+
+// ============================================================
 // MENU DETECTION
 // ============================================================
 
@@ -767,31 +907,304 @@ async function continueFlow(
 }
 
 // ============================================================
-// AI FREE-FORM RESPONSE
+// MAIA INTELLIGENT RESPONSE ENGINE
+// Reads context, queries database, responds naturally
 // ============================================================
 
-async function getAIResponse(ctx: CallerContext, message: string, mode = 'general'): Promise<string> {
+async function getMaiaIntelligentResponse(
+  ctx:     CallerContext,
+  message: string
+): Promise<string> {
+
   const langName = LANGUAGE_NAMES[ctx.language] ?? 'English'
-  const system   = mode === 'documents'
-    ? `You are Maia, a warm and caring virtual assistant for PMI Top Florida Properties. Respond in ${langName}. Answer questions about leases, rules, and policies concisely. If unsure, warmly offer to connect them with the team.`
-    : `You are Maia, a warm and caring virtual assistant for PMI Top Florida Properties, a professional property management company in South Florida. Respond in ${langName}. You are speaking with ${ctx.name}, a ${ctx.persona.replace(/_/g, ' ')}. Be warm, friendly and concise like a helpful neighbor who knows their community. Never say you are an AI unless directly asked.`
+  const msg      = message.toLowerCase()
+
+  // ── Intent detection ────────────────────────────────────────
+  const isMaintenance = /leak|repair|broken|fix|maintenance|agua|plumb|hvac|electric|roof|door|window|faucet|toilet|ac|heat|mold|pest|consert|manuten|reparar|fuego|calor|frio/.test(msg)
+  const isPayment     = /balance|pay|owe|fee|amount|due|check|payment|cobro|pago|saldo|pagamento|saldo/.test(msg)
+  const isParking     = /park|sticker|car|vehicle|plate|veh|carro|calcoman|adesivo/.test(msg)
+  const isBoard       = /board|president|contact|who is|member|junta|directiva|conselho/.test(msg)
+  const isRules       = /rule|regulation|pet|noise|pool|gym|bylaw|regl|norma|regra/.test(msg)
+  const isDocument    = /document|form|application|lease|contract|estoppel|arc|doc|formulario|contrato/.test(msg)
+  const isSchedule    = /schedul|appointment|visit|inspect|meeting|cita|agend|visita/.test(msg)
+  const isEmergency   = /emergency|flood|fire|gas|danger|urgent|help|urgente|emergencia|emergência/.test(msg)
+
+  // ── Fetch relevant database context ─────────────────────────
+  let dbContext = ''
+
+  // Rentvine context for residential contacts
+  if (ctx.division === 'residential' && ctx.rentvineContactId) {
+    const rvContext = await buildRentvineContext(ctx)
+    dbContext += rvContext
+  }
+
+  // Owner info
+  if (ctx.associationId) {
+    const { data: assoc } = await supabase
+      .from('associations')
+      .select('association_name, association_type, service_type, florida_statute')
+      .eq('association_code', ctx.associationId)
+      .single()
+    if (assoc) {
+      dbContext += `
+Owner's Association: ${assoc.association_name} (${assoc.association_type}, ${assoc.service_type}, ${assoc.florida_statute})`
+    }
+  }
+
+  // Board members if asked
+  if (isBoard && ctx.associationId) {
+    const { data: board } = await supabase
+      .from('board_members')
+      .select('first_name, last_name, position, email, phone')
+      .eq('association_code', ctx.associationId)
+      .eq('active', true)
+    if (board?.length) {
+      dbContext += `
+Board Members: ${board.map(b => `${b.first_name} ${b.last_name} (${b.position}) - ${b.email}`).join(', ')}`
+    }
+  }
+
+  // FAQ answers
+  if (!isMaintenance && !isPayment && !isParking) {
+    const { data: faqs } = await supabase
+      .from('association_faq')
+      .select('question, answer, important_note')
+      .limit(5)
+    if (faqs?.length) {
+      dbContext += `
+FAQ Knowledge:
+${faqs.map(f => `Q: ${f.question}
+A: ${f.answer}`).join('
+')}`
+    }
+  }
+
+  // Drive folders for documents
+  if ((isDocument || isRules) && ctx.associationId) {
+    const { data: folders } = await supabase
+      .from('association_drive_folders')
+      .select('folder_type, drive_link')
+      .eq('association_code', ctx.associationId)
+      .not('drive_link', 'is', null)
+    if (folders?.length) {
+      dbContext += `
+Available Documents: ${folders.map(f => `${f.folder_type}: ${f.drive_link}`).join(', ')}`
+    }
+  }
+
+  // ── Handle specific intents with actions ────────────────────
+
+  // Emergency — alert team immediately
+  if (isEmergency) {
+    await alertEmergencyTeam(ctx)
+    return translate(ctx.language, {
+      en: `🚨 I've alerted our emergency team right away ${ctx.name.split(' ')[0]}! If you're in immediate danger please call 911. Our team will contact you very shortly. Stay safe! 📞 ${process.env.EMERGENCY_PHONE}`,
+      es: `🚨 ¡Alerté al equipo de emergencias ahora mismo! Si estás en peligro inmediato llama al 911. Te contactarán muy pronto. ¡Mantente seguro! 📞 ${process.env.EMERGENCY_PHONE}`,
+      pt: `🚨 Alertei nossa equipe de emergência agora mesmo! Se estiver em perigo imediato ligue para o 911. Entrarão em contato em breve. Fique seguro! 📞 ${process.env.EMERGENCY_PHONE}`,
+    })
+  }
+
+  // Maintenance — start flow
+  if (isMaintenance) {
+    const isBookkeeping = ctx.persona !== 'unknown' &&
+      (await supabase.from('associations').select('service_type')
+        .eq('association_code', ctx.associationId ?? '').single())
+        .data?.service_type === 'bookkeeping'
+
+    if (isBookkeeping) {
+      // Get board emails and send to them
+      const { data: board } = await supabase
+        .from('board_members')
+        .select('email, first_name, last_name')
+        .eq('association_code', ctx.associationId ?? '')
+        .eq('active', true)
+
+      if (board?.length) {
+        const emailList = board.map(b => b.email).filter(Boolean).join(',')
+        await notifyTeamByEmail(
+          emailList,
+          `Maintenance Request — Unit ${ctx.unitId ?? 'Unknown'} — ${ctx.name}`,
+          `Dear Board Members,
+
+A maintenance request has been submitted by ${ctx.name} (Unit ${ctx.unitId ?? 'N/A'}).
+
+Request: "${message}"
+
+Please contact the owner directly.
+
+PMI Top Florida Properties`
+        )
+      }
+
+      return translate(ctx.language, {
+        en: `Got it ${ctx.name.split(' ')[0]}! 🌸 Although PMI provides bookkeeping services for your association, we truly care about you. I've forwarded your request to all board members — they'll contact you directly to resolve this. Is there anything else I can help with?`,
+        es: `¡Entendido! 🌸 Aunque PMI brinda servicios de contabilidad para tu asociación, nos importas. Envié tu solicitud a todos los miembros de la junta — te contactarán directamente. ¿Hay algo más en que pueda ayudar?`,
+        pt: `Entendido! 🌸 Embora a PMI forneça serviços de contabilidade para sua associação, você é importante para nós. Encaminhei sua solicitação a todos os membros do conselho — eles entrarão em contato diretamente. Posso ajudar em mais alguma coisa?`,
+      })
+    }
+
+    // Full management or residential — create work order
+    await saveConversationState(ctx.phone,
+      ctx.division === 'residential' ? 'maintenance_rentvine' : 'maintenance_association',
+      'awaiting_description', {})
+
+    // Check if residential has open work orders already
+    let openOrdersNote = ''
+    if (ctx.division === 'residential' && ctx.rentvineContactId) {
+      const data = await getRentvineContactData(ctx.rentvineContactId, ctx.persona)
+      if (data && data.openWorkOrders > 0) {
+        openOrdersNote = ` (You currently have ${data.openWorkOrders} open work order${data.openWorkOrders > 1 ? 's' : ''} with us.)`
+      }
+    }
+
+    return translate(ctx.language, {
+      en: `Oh no, let me help you with that right away! 🔧${openOrdersNote} Can you describe the issue in a bit more detail so I can create a work order? Which room, how long has it been happening, and is it urgent?`,
+      es: `¡Enseguida te ayudo con eso! 🔧${openOrdersNote} ¿Puedes describir el problema con más detalle? ¿En qué habitación, desde cuándo y es urgente?`,
+      pt: `Deixa eu te ajudar com isso agora! 🔧${openOrdersNote} Você pode descrever o problema com mais detalhes? Qual cômodo, há quanto tempo e é urgente?`,
+    })
+  }
+
+  // Parking sticker
+  if (isParking) {
+    const status = await getStickerStatus(ctx)
+    return translate(ctx.language, {
+      en: `🚗 Here's your parking sticker info:
+
+${status}
+
+Need to register a new vehicle or request a sticker? Just let me know!`,
+      es: `🚗 Aquí está tu información de calcomanía:
+
+${status}
+
+¿Necesitas registrar un vehículo nuevo? ¡Solo dímelo!`,
+      pt: `🚗 Aqui está sua informação de adesivo:
+
+${status}
+
+Precisa registrar um novo veículo? É só me avisar!`,
+    })
+  }
+
+  // Payment/balance
+  if (isPayment) {
+    if (ctx.division === 'residential' && ctx.rentvineContactId) {
+      const data = await getRentvineContactData(ctx.rentvineContactId, ctx.persona)
+      if (data) {
+        const name = ctx.name.split(' ')[0]
+        if (data.balance !== null) {
+          void maybeRequestFeedback(ctx.phone, ctx, 'payment', ctx.channel)
+          return translate(ctx.language, {
+            en: `💰 Hi ${name}! Here's your account summary:
+
+Unit: ${data.unitAddress ?? 'N/A'}
+Balance: $${data.balance.toFixed(2)}${data.pastDue && data.pastDue > 0 ? `
+Past Due: $${data.pastDue.toFixed(2)} ⚠️` : ''}
+
+Need help paying? I can guide you through the options! 🌸`,
+            es: `💰 ¡Hola ${name}! Aquí está tu resumen:
+
+Unidad: ${data.unitAddress ?? 'N/A'}
+Saldo: $${data.balance.toFixed(2)}${data.pastDue && data.pastDue > 0 ? `
+Vencido: $${data.pastDue.toFixed(2)} ⚠️` : ''}
+
+¿Necesitas ayuda para pagar? 🌸`,
+            pt: `💰 Olá ${name}! Aqui está seu resumo:
+
+Unidade: ${data.unitAddress ?? 'N/A'}
+Saldo: $${data.balance.toFixed(2)}${data.pastDue && data.pastDue > 0 ? `
+Vencido: $${data.pastDue.toFixed(2)} ⚠️` : ''}
+
+Precisa de ajuda para pagar? 🌸`,
+          })
+        }
+      }
+    }
+    return await handlePaymentInquiry(ctx)
+  }
+
+  // Schedule
+  if (isSchedule) {
+    await saveConversationState(ctx.phone, 'schedule', 'awaiting_type', {})
+    return translate(ctx.language, {
+      en: `📅 Of course! I can schedule that for you. What type of appointment do you need?
+
+1 - Unit inspection
+2 - Move-in walkthrough
+3 - Meeting with management
+4 - Other`,
+      es: `📅 ¡Por supuesto! ¿Qué tipo de cita necesitas?
+
+1 - Inspección de unidad
+2 - Recorrido de mudanza
+3 - Reunión con administración
+4 - Otro`,
+      pt: `📅 Claro! Que tipo de agendamento você precisa?
+
+1 - Inspeção da unidade
+2 - Vistoria de mudança
+3 - Reunião com a administração
+4 - Outro`,
+    })
+  }
+
+  // ── Default — ask Claude with full context ───────────────────
+  const system = `You are Maia, a warm and caring virtual assistant for PMI Top Florida Properties, a professional property management company in South Florida managing 25 associations with 801 owners.
+
+Respond ONLY in ${langName}. Be warm, friendly and concise like a knowledgeable neighbor. Never say you are an AI unless directly asked. Keep replies under 300 characters for SMS.
+
+OWNER CONTEXT:
+- Name: ${ctx.name}
+- Persona: ${ctx.persona.replace(/_/g, ' ')}
+- Unit: ${ctx.unitId ?? 'unknown'}
+- Association: ${ctx.associationId ?? 'unknown'}
+- Division: ${ctx.division}
+
+DATABASE CONTEXT:
+${dbContext || 'No additional context available'}
+
+COMPANY INFO:
+- Portal: https://pmitfp.cincwebaxis.com/
+- Maintenance email: service@topfloridaproperties.com
+- Payments: ar@topfloridaproperties.com
+- Support: support@topfloridaproperties.com
+- Mail: PMI Top Florida Properties, P.O. Box 163556, Miami, FL 33116
+- Estoppel: https://secure.condocerts.com/resale/ (5-7 business days)
+
+IMPORTANT RULES:
+- For maintenance in bookkeeping associations → forward to board members
+- For maintenance in full management → create work order
+- For balance questions → direct to CINC portal
+- For applications → https://pmitopfloridaproperties.rentvine.com/public/apply
+- If unsure → warmly offer to connect with the team
+
+Always end with a warm offer to help with anything else.`
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': process.env.ANTHROPIC_API_KEY!,
+      'Content-Type':      'application/json',
+      'x-api-key':         process.env.ANTHROPIC_API_KEY!,
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 400,
+      model:      'claude-sonnet-4-20250514',
+      max_tokens: 500,
       system,
-      messages: [{ role: 'user', content: message }],
+      messages:   [{ role: 'user', content: message }],
     }),
   })
   const d = await res.json()
-  return d.content?.[0]?.text ?? buildMainMenu(ctx)
+  return d.content?.[0]?.text ?? translate(ctx.language, {
+    en: `I'd love to help with that! Let me connect you with our team for the best assistance. Reply 8 to speak with someone or email support@topfloridaproperties.com 🌸`,
+    es: `¡Me encantaría ayudarte! Déjame conectarte con nuestro equipo. Responde 8 para hablar con alguien o escribe a support@topfloridaproperties.com 🌸`,
+    pt: `Adoraria te ajudar! Vou te conectar com nossa equipe. Responda 8 para falar com alguém ou escreva para support@topfloridaproperties.com 🌸`,
+  })
+}
+
+// ── Keep getAIResponse as simple fallback ────────────────────────
+async function getAIResponse(ctx: CallerContext, message: string, mode = 'general'): Promise<string> {
+  return getMaiaIntelligentResponse(ctx, message)
 }
 
 // ============================================================
@@ -1146,6 +1559,128 @@ async function notifyAgentTeam(
 ;(FEEDBACK_CONFIG as Record<string,{type:FeedbackType}>)['agent_identification'] = { type: 'stars' }
 
 
+
+// ============================================================
+// PERSONAL GREETING — sent before menu for known contacts
+// ============================================================
+
+function buildPersonalGreeting(ctx: CallerContext): string {
+  const first = ctx.name !== 'there' ? ctx.name.split(' ')[0] : ''
+  const isKnown = ctx.persona !== 'unknown'
+
+  if (!isKnown) return ''
+
+  return translate(ctx.language, {
+    en: `Hi ${first}! 🌸 This is Maia from PMI Top Florida Properties. So lovely to hear from you! How can I help you today?`,
+    es: `¡Hola ${first}! 🌸 Soy Maia de PMI Top Florida Properties. ¡Qué gusto saber de ti! ¿En qué puedo ayudarte hoy?`,
+    pt: `Olá ${first}! 🌸 Aqui é a Maia da PMI Top Florida Properties. Que bom te ouvir! Como posso te ajudar hoje?`,
+    fr: `Bonjour ${first}! 🌸 C'est Maia de PMI Top Florida Properties. Ravi de vous entendre! Comment puis-je vous aider?`,
+    he: `שלום ${first}! 🌸 אני מאיה מ-PMI Top Florida Properties. כיף לשמוע ממך! איך אוכל לעזור היום?`,
+    ru: `Привет ${first}! 🌸 Это Мая из PMI Top Florida Properties. Рада слышать вас! Чем могу помочь сегодня?`,
+  })
+}
+
+// ============================================================
+// MENU ONLY — sent after personal greeting
+// ============================================================
+
+function buildMenuOnly(ctx: CallerContext): string {
+  if (ctx.persona === 'real_estate_agent') {
+    return translate(ctx.language, {
+      en: `Here's your Agent Portal menu:
+
+1 - 🏠 I represent an Owner / Seller
+2 - 🔑 I represent a Buyer
+3 - 📋 I represent a Tenant / Renter
+8 - 💬 Speak with our team
+
+Just reply with a number!`,
+      es: `Aquí está tu menú de Agente:
+
+1 - 🏠 Propietario
+2 - 🔑 Comprador
+3 - 📋 Inquilino
+8 - 💬 Equipo`,
+      pt: `Aqui está seu menu de Corretor:
+
+1 - 🏠 Proprietário
+2 - 🔑 Comprador
+3 - 📋 Inquilino
+8 - 💬 Equipe`,
+      fr: `Voici votre menu Agent:
+
+1 - 🏠 Propriétaire
+2 - 🔑 Acheteur
+3 - 📋 Locataire
+8 - 💬 Équipe`,
+      he: `תפריט הסוכן שלך:
+
+1-🏠 בעלים  2-🔑 קונה  3-📋 שוכר  8-💬 צוות`,
+      ru: `Меню агента:
+
+1-🏠 Владелец  2-🔑 Покупатель  3-📋 Арендатор  8-💬 Команда`,
+    })
+  }
+
+  return translate(ctx.language, {
+    en: `Here's what I can help you with:
+
+1 - 🚗 Parking Sticker
+2 - 🔧 Maintenance
+3 - 💰 Payment
+4 - 📄 Documents
+5 - 📅 Schedule
+6 - 🏠 My Account
+7 - 🚨 Emergency
+8 - 💬 Staff
+9 - 🏡 Real Estate Agent
+
+Just reply with a number!`,
+    es: `¿En qué puedo ayudarte?
+
+1 - 🚗 Calcomanía
+2 - 🔧 Mantenimiento
+3 - 💰 Pagos
+4 - 📄 Documentos
+5 - 📅 Cita
+6 - 🏠 Mi Cuenta
+7 - 🚨 Emergencia
+8 - 💬 Equipo
+9 - 🏡 Agente Inmobiliario`,
+    pt: `Como posso te ajudar?
+
+1 - 🚗 Adesivo
+2 - 🔧 Manutenção
+3 - 💰 Pagamentos
+4 - 📄 Documentos
+5 - 📅 Agendar
+6 - 🏠 Minha Conta
+7 - 🚨 Emergência
+8 - 💬 Equipe
+9 - 🏡 Corretor Imobiliário`,
+    fr: `Comment puis-je vous aider?
+
+1 - 🚗 Vignette
+2 - 🔧 Maintenance
+3 - 💰 Paiements
+4 - 📄 Documents
+5 - 📅 Rendez-vous
+6 - 🏠 Mon Compte
+7 - 🚨 Urgence
+8 - 💬 Équipe
+9 - 🏡 Agent Immobilier`,
+    he: `במה אוכל לעזור?
+
+1-🚗 מדבקה  2-🔧 תחזוקה  3-💰 תשלומים
+4-📄 מסמכים  5-📅 פגישה  6-🏠 חשבון
+7-🚨 חירום  8-💬 צוות  9-🏡 סוכן`,
+    ru: `Чем могу помочь?
+
+1-🚗 Наклейка  2-🔧 Ремонт  3-💰 Платежи
+4-📄 Документы  5-📅 Запись  6-🏠 Аккаунт
+7-🚨 Экстренно  8-💬 Команда  9-🏡 Агент`,
+  })
+}
 
 function buildMainMenu(ctx: CallerContext): string {
   const first = ctx.name !== 'there' ? ` ${ctx.name.split(' ')[0]}` : ''
