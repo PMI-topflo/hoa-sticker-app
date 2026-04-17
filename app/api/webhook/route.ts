@@ -993,6 +993,9 @@ async function getMaiaIntelligentResponse(
   const isDocument    = /document|form|application|lease|contract|estoppel|arc|doc|formulario|contrato/.test(msg)
   const isSchedule    = /schedul|appointment|visit|inspect|meeting|cita|agend|visita/.test(msg)
   const isEmergency   = /emergency|flood|fire|gas|danger|urgent|help|urgente|emergencia|emergência/.test(msg)
+  const isArcForm     = /arc|architect|modification|exterior|fence|paint|roof|pool|shed|landscap|structur|modifica|arquitect/.test(msg)
+  const isVendorAch   = /vendor|ach|ach form|bank|routing|account.*vendor|vendor.*form|pago.*proveedor|proveedor/.test(msg)
+  const isInvoice     = /invoice|approve.*invoice|invoice.*approv|factura|aprob|fatura/.test(msg)
 
   // ── Fetch relevant database context ─────────────────────────
   let dbContext = ''
@@ -1054,6 +1057,149 @@ Available Documents: ${folders.map(f => `${f.folder_type}: ${f.drive_link}`).joi
   }
 
   // ── Handle specific intents with actions ────────────────────
+
+  // ARC Form request
+  if (isArcForm && !isMaintenance) {
+    return translate(ctx.language, {
+      en: `🏗️ To request an Architectural Review (ARC), you need to complete the ARC Submission Form and send it to info@topfloridaproperties.com
+
+You must include:
+• Owner signature (contractor signatures not accepted)
+• Project description with dimensions and materials
+• Materials list with paint samples
+• Photo or drawing of project
+• Site plan
+
+⚠️ NO work can begin until ACC approval is received!
+
+Download the form here:
+https://drive.google.com/drive/folders/1RGGBxke8umRS6kH9PTX4P-SJmvuHCsJh
+
+Need help filling it out? 🌸`,
+      es: `🏗️ Para solicitar una Revisión Arquitectónica (ARC), completa el formulario y envíalo a info@topfloridaproperties.com
+
+Debes incluir:
+• Firma del propietario
+• Descripción del proyecto con dimensiones
+• Lista de materiales con muestras de pintura
+• Foto o dibujo del proyecto
+• Plano del sitio
+
+⚠️ ¡NO se puede comenzar ningún trabajo hasta recibir aprobación!
+
+Descarga el formulario:
+https://drive.google.com/drive/folders/1RGGBxke8umRS6kH9PTX4P-SJmvuHCsJh`,
+      pt: `🏗️ Para solicitar uma Revisão Arquitetônica (ARC), preencha o formulário e envie para info@topfloridaproperties.com
+
+Você deve incluir:
+• Assinatura do proprietário
+• Descrição do projeto com dimensões
+• Lista de materiais com amostras de tinta
+• Foto ou desenho do projeto
+• Planta do local
+
+⚠️ NENHUM trabalho pode começar sem aprovação!
+
+Baixe o formulário:
+https://drive.google.com/drive/folders/1RGGBxke8umRS6kH9PTX4P-SJmvuHCsJh`,
+    })
+  }
+
+  // Vendor ACH form request
+  if (isVendorAch) {
+    return translate(ctx.language, {
+      en: `📋 The Vendor ACH Authorization Form allows vendors to receive payments electronically.
+
+Vendors fill in:
+• Business name
+• Bank name
+• Routing number
+• Account number
+(or attach a VOID check)
+
+Send completed form to: billing@topfloridaproperties.com
+
+Download the form here:
+https://drive.google.com/drive/folders/1RGGBxke8umRS6kH9PTX4P-SJmvuHCsJh
+
+Questions? ar@topfloridaproperties.com 🌸`,
+      es: `📋 El Formulario de Autorización ACH para Proveedores permite recibir pagos electrónicamente.
+
+El proveedor completa:
+• Nombre del negocio
+• Nombre del banco
+• Número de ruta
+• Número de cuenta
+(o adjunta un cheque VOID)
+
+Enviar a: billing@topfloridaproperties.com
+
+Descarga el formulario:
+https://drive.google.com/drive/folders/1RGGBxke8umRS6kH9PTX4P-SJmvuHCsJh`,
+      pt: `📋 O Formulário de Autorização ACH para Fornecedores permite receber pagamentos eletronicamente.
+
+O fornecedor preenche:
+• Nome da empresa
+• Nome do banco
+• Número de roteamento
+• Número da conta
+(ou anexa um cheque VOID)
+
+Enviar para: billing@topfloridaproperties.com
+
+Baixe o formulário:
+https://drive.google.com/drive/folders/1RGGBxke8umRS6kH9PTX4P-SJmvuHCsJh`,
+    })
+  }
+
+  // Invoice approval
+  if (isInvoice) {
+    return translate(ctx.language, {
+      en: `✅ To approve invoices as a board member:
+
+1️⃣ Log in: https://pmitfp.cincwebaxis.com/
+2️⃣ Click "Board Invoice Approval" in the left menu
+3️⃣ Review invoice details and PDF preview
+4️⃣ Click Approve or Decline
+
+⚠️ ONLY invoices approved in the portal will be paid!
+
+Invoices uploaded daily — check twice per week.
+ACH payment: 5-7 business days after approval.
+
+Mobile app:
+📱 Android: https://play.google.com/store/apps/details?id=com.cinc.pmiapp
+🍎 Apple: https://apps.apple.com/sv/app/property-management-inc/id1572855043
+
+Questions? ar@topfloridaproperties.com 🌸`,
+      es: `✅ Para aprobar facturas como miembro de la junta:
+
+1️⃣ Inicia sesión: https://pmitfp.cincwebaxis.com/
+2️⃣ Haz clic en "Board Invoice Approval"
+3️⃣ Revisa los detalles y el PDF
+4️⃣ Haz clic en Aprobar o Rechazar
+
+⚠️ ¡SOLO las facturas aprobadas en el portal se pagarán!
+
+Facturas subidas diariamente — revisa dos veces por semana.
+Pago ACH: 5-7 días hábiles después de aprobación.
+
+Preguntas: ar@topfloridaproperties.com 🌸`,
+      pt: `✅ Para aprovar faturas como membro do conselho:
+
+1️⃣ Acesse: https://pmitfp.cincwebaxis.com/
+2️⃣ Clique em "Board Invoice Approval"
+3️⃣ Revise os detalhes e o PDF
+4️⃣ Clique em Aprovar ou Recusar
+
+⚠️ APENAS faturas aprovadas no portal serão pagas!
+
+Faturas enviadas diariamente — verifique duas vezes por semana.
+Pagamento ACH: 5-7 dias úteis após aprovação.
+
+Dúvidas: ar@topfloridaproperties.com 🌸`,
+    })
+  }
 
   // Emergency — alert team immediately
   if (isEmergency) {
@@ -1209,37 +1355,112 @@ Precisa de ajuda para pagar? 🌸`,
     })
   }
 
+  // ── Check if person is also a board member ─────────────────
+  let isBoardMember = false
+  let boardPosition = ''
+  if (ctx.phone) {
+    const cleanP = ctx.phone.replace(/\D/g, '')
+    const plusP  = '+' + cleanP
+    const { data: bm } = await supabase
+      .from('board_members')
+      .select('position, association_code')
+      .or(`phone.eq.${ctx.phone},phone.eq.${plusP}`)
+      .limit(1).maybeSingle()
+    if (bm) {
+      isBoardMember = true
+      boardPosition = bm.position ?? 'Board Member'
+    }
+  }
+
   // ── Default — ask Claude with full context ───────────────────
   const system = `You are Maia, a warm and caring virtual assistant for PMI Top Florida Properties, a professional property management company in South Florida managing 25 associations with 801 owners.
 
-Respond ONLY in ${langName}. Be warm, friendly and concise like a knowledgeable neighbor. Never say you are an AI unless directly asked. Keep replies under 300 characters for SMS.
+Respond ONLY in ${langName}. Be warm, friendly and concise. Never say you are an AI unless directly asked. Keep replies under 350 characters for SMS. Use simple language — no jargon.
 
-OWNER CONTEXT:
+CONTACT CONTEXT:
 - Name: ${ctx.name}
-- Persona: ${ctx.persona.replace(/_/g, ' ')}
+- Role: ${isBoardMember ? boardPosition + ' (Board Member)' : ctx.persona.replace(/_/g, ' ')}
 - Unit: ${ctx.unitId ?? 'unknown'}
 - Association: ${ctx.associationId ?? 'unknown'}
 - Division: ${ctx.division}
+- Is Board Member: ${isBoardMember}
 
 DATABASE CONTEXT:
 ${dbContext || 'No additional context available'}
 
-COMPANY INFO:
-- Portal: https://pmitfp.cincwebaxis.com/
-- Maintenance email: service@topfloridaproperties.com
-- Payments: ar@topfloridaproperties.com
-- Support: support@topfloridaproperties.com
-- Mail: PMI Top Florida Properties, P.O. Box 163556, Miami, FL 33116
-- Estoppel: https://secure.condocerts.com/resale/ (5-7 business days)
+═══════════════════════════════════════
+PMI TOP FLORIDA PROPERTIES — FULL KNOWLEDGE BASE
+═══════════════════════════════════════
 
-IMPORTANT RULES:
-- For maintenance in bookkeeping associations → forward to board members
-- For maintenance in full management → create work order
-- For balance questions → direct to CINC portal
-- For applications → https://pmitopfloridaproperties.rentvine.com/public/apply
-- If unsure → warmly offer to connect with the team
+COMPANY CONTACTS:
+• Accounts Receivable (HOA fees, assessments, balances): ar@topfloridaproperties.com | (305) 900-5105
+• Customer Service / Care Team (maintenance): service@topfloridaproperties.com | (305) 900-5077
+• Ron / Support / Compliance: support@topfloridaproperties.com
+• Billing / Accounts Payable (vendor invoices): billing@topfloridaproperties.com
+• CINC Portal: https://pmitfp.cincwebaxis.com/
+• Mail: PMI Top Florida Properties, P.O. Box 163556, Miami FL 33116
 
-Always end with a warm offer to help with anything else.`
+OFFICE HOURS: Monday–Thursday 10AM–5PM | Friday 10AM–3PM
+Email is always preferred for documentation purposes.
+
+═══════════════════════════════════════
+BOARD MEMBER PROCEDURES (use when isBoardMember = true)
+═══════════════════════════════════════
+
+1. INVOICE APPROVAL:
+   - Vendors send invoices to billing@topfloridaproperties.com (CC: service@topfloridaproperties.com)
+   - Billing dept processes and uploads invoice to CINC portal daily
+   - Board member logs into portal → clicks "Board Invoice Approval" → Approve or Decline
+   - ⚠️ ONLY invoices approved in the portal will be paid
+   - ACH payment takes 5–7 business days after approval
+   - Recommend checking portal TWICE per week
+   - Portal: https://pmitfp.cincwebaxis.com/
+   - App (Android): https://play.google.com/store/apps/details?id=com.cinc.pmiapp
+   - App (Apple): https://apps.apple.com/sv/app/property-management-inc/id1572855043
+   - Questions: ar@topfloridaproperties.com
+
+2. MAINTENANCE / VENDOR ESTIMATES:
+   - Board requests estimate → email Care team at service@topfloridaproperties.com
+   - Care team contacts vendors, gets estimates, uploads to shared Drive folder (year/month)
+   - If board contacts vendor directly → forward estimates to Care team for DocuSign approval
+   - After board approves → Care team schedules the job
+
+3. NEW VENDOR REQUIREMENTS (all required before payment):
+   - W9 form
+   - License
+   - Certificate of Insurance (listing association AND PMI as additional insured)
+   - ACH Vendor Form
+
+4. PAYMENT PROCEDURES:
+   - Utility bills: Must be set up for automatic debit (check = $15 fee)
+   - Vendor payments: Must be paid via ACH (alternative = $10 fee to association)
+   - Standard processing: 5–7 business days
+   - Rush payment: $25 expedited fee
+   - Questions: ar@topfloridaproperties.com
+
+5. COMPLIANCE:
+   - All compliance issues → support@topfloridaproperties.com
+
+═══════════════════════════════════════
+MAINTENANCE RULES (for all contacts)
+═══════════════════════════════════════
+• Emergency (fire/flood/blood): Call 911 immediately
+• Urgent maintenance: Handled within 1–2 business days during working hours
+• Typical maintenance: Handled within 3–5 business days
+• Contact: service@topfloridaproperties.com | (305) 900-5077 (text preferred)
+• Include photos for physical damage
+
+═══════════════════════════════════════
+GENERAL RULES
+═══════════════════════════════════════
+- For balance questions → CINC portal: https://pmitfp.cincwebaxis.com/
+- For HOA applications → https://pmitopfloridaproperties.rentvine.com/public/apply
+- For estoppel → https://secure.condocerts.com/resale/ (5–7 business days)
+- Every application MUST have signature confirming Rules & Regulations read
+- ACH autopay: send form to ar@topfloridaproperties.com (processed on 10th of month)
+- Check payments: payable to FULL HOA NAME, write account number in MEMO
+
+Always end with a warm offer to help with anything else. 🌸`
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
