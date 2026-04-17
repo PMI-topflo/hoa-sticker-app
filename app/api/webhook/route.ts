@@ -193,7 +193,14 @@ async function handleTextChannel(
 
   let replyText: string
 
-  if (state?.current_flow && state.current_flow !== 'idle') {
+  const isGreeting = detectMenuTrigger(message) === 'main_menu'
+
+  // ── Always clear state on greeting ──────────────────────────
+  if (isGreeting) {
+    await clearConversationState(phone)
+  }
+
+  if (!isGreeting && state?.current_flow && state.current_flow !== 'idle') {
 
     // ── Awaiting feedback reply ──────────────────────────
     if (state.current_flow === 'awaiting_feedback') {
@@ -203,20 +210,24 @@ async function handleTextChannel(
     } else if (state.current_flow === 'agent_identification') {
       replyText = await continueAgentFlow(ctx, state, message)
 
-    // ── Any other active flow ────────────────────────────
-    } else {
+    // ── Structured flows (maintenance steps, sticker, schedule) ─
+    } else if ([
+      'sticker_register', 'maintenance_rentvine',
+      'maintenance_association', 'schedule', 'staff_handoff'
+    ].includes(state.current_flow)) {
       replyText = await continueFlow(ctx, state, message)
+
+    // ── Everything else → intelligent AI ────────────────────
+    } else {
+      replyText = await getMaiaIntelligentResponse(ctx, message)
     }
 
-  } else {
-    const isGreeting = detectMenuTrigger(message) === 'main_menu'
-
-    if (isGreeting && ctx.persona !== 'unknown') {
-      // Known contact — warm personal greeting first
+  } else if (isGreeting) {
+    if (ctx.persona !== 'unknown') {
+      // Known contact — warm personal greeting then open-ended
       const greeting = buildPersonalGreeting(ctx)
       await sendReply(phone, greeting, channel)
       await new Promise(r => setTimeout(r, 1500))
-      // Then conversational prompt — no menu
       replyText = translate(ctx.language, {
         en: `Just tell me what you need and I'll take care of it! 😊`,
         es: `¡Solo dime qué necesitas y yo me encargo! 😊`,
@@ -225,13 +236,13 @@ async function handleTextChannel(
         he: `פשוט תגיד לי מה אתה צריך ואני אטפל בזה! 😊`,
         ru: `Просто скажите что вам нужно и я позабочусь! 😊`,
       })
-    } else if (isGreeting && ctx.persona === 'unknown') {
-      // Unknown contact — standard greeting with menu
-      replyText = buildMainMenu(ctx)
     } else {
-      // All other messages — Maia thinks and responds intelligently
-      replyText = await getMaiaIntelligentResponse(ctx, message)
+      // Unknown contact — show menu so they can identify themselves
+      replyText = buildMainMenu(ctx)
     }
+  } else {
+    // All messages → Maia intelligent engine
+    replyText = await getMaiaIntelligentResponse(ctx, message)
   }
 
   await sendReply(phone, replyText, channel)
