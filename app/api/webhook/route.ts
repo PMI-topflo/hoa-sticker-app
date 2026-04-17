@@ -1530,10 +1530,15 @@ async function handlePaymentInquiry(ctx: CallerContext): Promise<string> {
     pt: `💰 Solicitação ${req.id.slice(0, 8)} — ${req.status} — Pagamento: ${req.payment_status}`,
   })
 
+  // Association owner — give full payment instructions
+  const name = ctx.name.split(' ')[0]
   return translate(ctx.language, {
-    en: `💰 No open balance found. Reply *8* to speak with our team.`,
-    es: `💰 Sin saldo pendiente. Responde *8* para contactarnos.`,
-    pt: `💰 Nenhum saldo pendente. Responda *8* para falar conosco.`,
+    en: `💰 Hi ${name}! Here are your HOA payment options:\n\n1️⃣ *ACH Autopay — FREE* ✅\nBest option! Download and fill the ACH form here:\nhttps://drive.google.com/drive/folders/1RGGBxke8umRS6kH9PTX4P-SJmvuHCsJh\nEmail completed form to ar@topfloridaproperties.com\nProcessed on the 10th of each month.\n\n2️⃣ *Online Portal* (fee applies)\nhttps://pmitfp.cincwebaxis.com/\n\n📱 *PMI Mobile App*\nAndroid: https://play.google.com/store/apps/details?id=com.cinc.pmiapp\nApple: https://apps.apple.com/sv/app/property-management-inc/id1572855043\n\n3️⃣ *Check by mail*\nPayable to: FULL name of your HOA/Condo\nWrite account number in MEMO\nMail to: PMI Top Florida Properties\nP.O. Box 163556, Miami FL 33116\n\nQuestions: ar@topfloridaproperties.com | (305) 900-5105 🌸`,
+    es: `💰 ¡Hola ${name}! Opciones de pago HOA:\n\n1️⃣ *ACH Autopago — GRATIS* ✅\nDescarga el formulario ACH aquí:\nhttps://drive.google.com/drive/folders/1RGGBxke8umRS6kH9PTX4P-SJmvuHCsJh\nEnvíalo a ar@topfloridaproperties.com\nSe procesa el día 10 de cada mes.\n\n2️⃣ *Portal online* (aplica cargo)\nhttps://pmitfp.cincwebaxis.com/\n\n📱 *App PMI*\nAndroid: https://play.google.com/store/apps/details?id=com.cinc.pmiapp\nApple: https://apps.apple.com/sv/app/property-management-inc/id1572855043\n\n3️⃣ *Cheque por correo*\nA nombre completo de tu HOA/Condo\nEscribe tu número de cuenta en el MEMO\nPMI, P.O. Box 163556, Miami FL 33116\n\nPreguntas: ar@topfloridaproperties.com 🌸`,
+    pt: `💰 Olá ${name}! Opções de pagamento HOA:\n\n1️⃣ *ACH Autopagamento — GRÁTIS* ✅\nBaixe o formulário ACH aqui:\nhttps://drive.google.com/drive/folders/1RGGBxke8umRS6kH9PTX4P-SJmvuHCsJh\nEnvie para ar@topfloridaproperties.com\nProcessado no dia 10 de cada mês.\n\n2️⃣ *Portal online* (taxa aplicável)\nhttps://pmitfp.cincwebaxis.com/\n\n📱 *App PMI*\nAndroid: https://play.google.com/store/apps/details?id=com.cinc.pmiapp\nApple: https://apps.apple.com/sv/app/property-management-inc/id1572855043\n\n3️⃣ *Cheque pelo correio*\nPagável ao nome completo do HOA/Condo\nEscreva o número da conta no MEMO\nPMI, P.O. Box 163556, Miami FL 33116\n\nDúvidas: ar@topfloridaproperties.com 🌸`,
+    fr: `💰 Bonjour ${name}! Options de paiement HOA:\n\n1️⃣ ACH GRATUIT — Formulaire:\nhttps://drive.google.com/drive/folders/1RGGBxke8umRS6kH9PTX4P-SJmvuHCsJh\nar@topfloridaproperties.com\n2️⃣ Portail: https://pmitfp.cincwebaxis.com/\n📱 App Android/Apple: "Property Management Inc"\n3️⃣ Chèque: PMI, P.O. Box 163556, Miami FL 33116 🌸`,
+    he: `💰 שלום ${name}! אפשרויות תשלום:\n\n1️⃣ ACH חינם — טופס:\nhttps://drive.google.com/drive/folders/1RGGBxke8umRS6kH9PTX4P-SJmvuHCsJh\nar@topfloridaproperties.com\n2️⃣ פורטל: https://pmitfp.cincwebaxis.com/\n📱 אפליקציה Android/Apple\n3️⃣ המחאה: P.O. Box 163556, Miami FL 33116 🌸`,
+    ru: `💰 Привет ${name}! Способы оплаты:\n\n1️⃣ ACH Бесплатно — форма:\nhttps://drive.google.com/drive/folders/1RGGBxke8umRS6kH9PTX4P-SJmvuHCsJh\nar@topfloridaproperties.com\n2️⃣ Портал: https://pmitfp.cincwebaxis.com/\n📱 Приложение Android/Apple\n3️⃣ Чек: P.O. Box 163556, Miami FL 33116 🌸`,
   })
 }
 
