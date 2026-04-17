@@ -979,11 +979,7 @@ Board Members: ${board.map(b => `${b.first_name} ${b.last_name} (${b.position}) 
       .select('question, answer, important_note')
       .limit(5)
     if (faqs?.length) {
-      dbContext += `
-FAQ Knowledge:
-${faqs.map(f => `Q: ${f.question}
-A: ${f.answer}`).join('
-')}`
+      dbContext += '\nFAQ Knowledge:\n' + faqs.map(f => `Q: ${f.question}\nA: ${f.answer}`).join('\n')
     }
   }
 
