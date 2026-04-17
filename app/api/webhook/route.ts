@@ -237,8 +237,16 @@ async function handleTextChannel(
         ru: `Просто скажите что вам нужно и я позабочусь! 😊`,
       })
     } else {
-      // Unknown contact — show menu so they can identify themselves
-      replyText = buildMainMenu(ctx)
+      // Unknown contact — collect their info and forward to team
+      await saveConversationState(phone, 'unknown_contact', 'awaiting_info', {})
+      replyText = translate(ctx.language, {
+        en: `Hi! 🌸 I'm Maia from PMI Top Florida Properties. I don't see you registered in our system, so in a few words please tell me your full name, email address, and how I can help you — and I'll make sure my colleagues get back to you as soon as possible!`,
+        es: `¡Hola! 🌸 Soy Maia de PMI Top Florida Properties. No encuentro tu registro en nuestro sistema, así que en pocas palabras dime tu nombre completo, correo electrónico y cómo puedo ayudarte — ¡me aseguraré de que mis colegas te contacten lo antes posible!`,
+        pt: `Olá! 🌸 Sou a Maia da PMI Top Florida Properties. Não encontrei seu cadastro em nosso sistema, então em poucas palavras me diga seu nome completo, e-mail e como posso te ajudar — vou garantir que meus colegas entrem em contato o mais rápido possível!`,
+        fr: `Bonjour! 🌸 Je suis Maia de PMI Top Florida Properties. Je ne vous trouve pas dans notre système, alors en quelques mots dites-moi votre nom complet, email et comment je peux vous aider — je m'assurerai que mes collègues vous contactent dès que possible!`,
+        he: `שלום! 🌸 אני מאיה מ-PMI Top Florida Properties. לא מצאתי אותך במערכת שלנו, אז במילים קצרות אנא ספר לי את שמך המלא, כתובת האימייל וכיצד אוכל לעזור — אדאג שהצוות שלי יחזור אליך בהקדם!`,
+        ru: `Привет! 🌸 Я Мая из PMI Top Florida Properties. Я не нашла вас в нашей системе, поэтому в нескольких словах сообщите мне ваше полное имя, email и как я могу помочь — я позабочусь чтобы мои коллеги связались с вами как можно скорее!`,
+      })
     }
   } else {
     // All messages → Maia intelligent engine
@@ -909,6 +917,33 @@ async function continueFlow(
     })
   }
 
+  // ── Unknown contact info collection ────────────────────────
+  if (flow === 'unknown_contact' && step === 'awaiting_info') {
+    // Forward their message to staff with their phone number
+    await notifyTeamByEmail(
+      process.env.STAFF_EMAIL!,
+      `New Unregistered Contact — ${ctx.phone}`,
+      `An unregistered contact reached out via ${ctx.channel.toUpperCase()}.
+
+Phone: ${ctx.phone}
+Message: "${message}"
+
+Please follow up with them directly.
+
+Maia — PMI Top Florida Properties`
+    )
+    await clearConversationState(ctx.phone)
+    void maybeRequestFeedback(ctx.phone, ctx, 'staff_handoff', ctx.channel)
+    return translate(ctx.language, {
+      en: `Thank you so much! 🌸 I've passed your message to our team and they'll get back to you very soon. Have a wonderful day!`,
+      es: `¡Muchas gracias! 🌸 Le pasé tu mensaje a nuestro equipo y te contactarán muy pronto. ¡Que tengas un excelente día!`,
+      pt: `Muito obrigada! 🌸 Passei sua mensagem para nossa equipe e eles entrarão em contato em breve. Tenha um ótimo dia!`,
+      fr: `Merci beaucoup! 🌸 J'ai transmis votre message à notre équipe et ils vous contacteront très bientôt. Bonne journée!`,
+      he: `תודה רבה! 🌸 העברתי את ההודעה שלך לצוות שלנו והם יחזרו אליך בקרוב. יום נפלא!`,
+      ru: `Большое спасибо! 🌸 Я передала ваше сообщение нашей команде и они свяжутся с вами очень скоро. Хорошего дня!`,
+    })
+  }
+
   // Default
   await clearConversationState(ctx.phone)
   return buildMainMenu(ctx)
@@ -1569,18 +1604,18 @@ async function notifyAgentTeam(
 // ============================================================
 
 function buildPersonalGreeting(ctx: CallerContext): string {
-  const first = ctx.name !== 'there' ? ctx.name.split(' ')[0] : ''
-  const isKnown = ctx.persona !== 'unknown'
-
-  if (!isKnown) return ''
+  const first = (ctx.name && ctx.name !== 'there')
+    ? ctx.name.split(' ')[0]
+    : ''
+  const nameStr = first ? ` ${first}` : ''
 
   return translate(ctx.language, {
-    en: `Hi ${first}! 🌸 This is Maia from PMI Top Florida Properties. So lovely to hear from you! How can I help you today?`,
-    es: `¡Hola ${first}! 🌸 Soy Maia de PMI Top Florida Properties. ¡Qué gusto saber de ti! ¿En qué puedo ayudarte hoy?`,
-    pt: `Olá ${first}! 🌸 Aqui é a Maia da PMI Top Florida Properties. Que bom te ouvir! Como posso te ajudar hoje?`,
-    fr: `Bonjour ${first}! 🌸 C'est Maia de PMI Top Florida Properties. Ravi de vous entendre! Comment puis-je vous aider?`,
-    he: `שלום ${first}! 🌸 אני מאיה מ-PMI Top Florida Properties. כיף לשמוע ממך! איך אוכל לעזור היום?`,
-    ru: `Привет ${first}! 🌸 Это Мая из PMI Top Florida Properties. Рада слышать вас! Чем могу помочь сегодня?`,
+    en: `Hi${nameStr}! 🌸 This is Maia from PMI Top Florida Properties. So lovely to hear from you!`,
+    es: `¡Hola${nameStr}! 🌸 Soy Maia de PMI Top Florida Properties. ¡Qué gusto saber de ti!`,
+    pt: `Olá${nameStr}! 🌸 Aqui é a Maia da PMI Top Florida Properties. Que bom te ouvir!`,
+    fr: `Bonjour${nameStr}! 🌸 C'est Maia de PMI Top Florida Properties. Ravi de vous entendre!`,
+    he: `שלום${nameStr}! 🌸 אני מאיה מ-PMI Top Florida Properties. כיף לשמוע ממך!`,
+    ru: `Привет${nameStr}! 🌸 Это Мая из PMI Top Florida Properties. Рада слышать вас!`,
   })
 }
 
