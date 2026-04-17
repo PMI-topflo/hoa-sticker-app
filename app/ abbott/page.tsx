@@ -1,3 +1,4 @@
+'use client'
 // app/abbott/page.tsx
 // 7636 Abbott Avenue Condominium Association, Inc.
 // URL: https://www.mypmitop.com/abbott
