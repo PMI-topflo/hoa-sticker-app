@@ -143,16 +143,16 @@ body{font-family:'Open Sans',sans-serif;background:#fff;color:#222}
         </a>
 
         <div className="dcard-name">Rules & Regulations</div><span className="dcard-cs">Coming Soon</span></div>
-              <div className="dcard locked"><div className="dcard-icon">📝</div><div className="dcard-name">Tenant Applications</div><span className="dcard-cs">Coming Soon</span></div>
-              <div className="dcard locked"><div className="dcard-icon">💰</div><div className="dcard-name">Financials</div><span className="dcard-cs">Coming Soon</span></div>
-              <div className="dcard locked"><div className="dcard-icon">🔧</div><div className="dcard-name">Maintenance</div><span className="dcard-cs">Coming Soon</span></div>
-              <div className="dcard locked"><div className="dcard-icon">📅</div><div className="dcard-name">Board Minutes</div><span className="dcard-cs">Coming Soon</span></div>
-              <div className="dcard locked"><div className="dcard-icon">🏠</div><div className="dcard-name">Leases and Resale</div><span className="dcard-cs">Coming Soon</span></div>
-              <div className="dcard locked"><div className="dcard-icon">🛡️</div><div className="dcard-name">Insurance Files</div><span className="dcard-cs">Coming Soon</span></div>
-              <div className="dcard locked"><div className="dcard-icon">💳</div><div className="dcard-name">ACH Forms</div><span className="dcard-cs">Coming Soon</span></div>
-              <div className="dcard locked"><div className="dcard-icon">💌</div><div className="dcard-name">Welcome Letters</div><span className="dcard-cs">Coming Soon</span></div>
-              <div className="dcard locked"><div className="dcard-icon">📊</div><div className="dcard-name">Budget</div><span className="dcard-cs">Coming Soon</span></div>
-              <div className="dcard locked"><div className="dcard-icon">🏗️</div><div className="dcard-name">ARC Forms</div><span className="dcard-cs">Coming Soon</span></div>
+          <div className="dcard locked"><div className="dcard-icon">📋</div><div className="dcard-name">Tenant Applications</div><span className="dcard-cs">Coming Soon</span></div>
+<div className="dcard locked"><div className="dcard-icon">💰</div><div className="dcard-name">Financials</div><span className="dcard-cs">Coming Soon</span></div>
+<div className="dcard locked"><div className="dcard-icon">🔧</div><div className="dcard-name">Maintenance</div><span className="dcard-cs">Coming Soon</span></div>
+<div className="dcard locked"><div className="dcard-icon">📅</div><div className="dcard-name">Board Minutes</div><span className="dcard-cs">Coming Soon</span></div>
+<div className="dcard locked"><div className="dcard-icon">🏠</div><div className="dcard-name">Leases and Resale</div><span className="dcard-cs">Coming Soon</span></div>
+<div className="dcard locked"><div className="dcard-icon">📄</div><div className="dcard-name">Insurance Files</div><span className="dcard-cs">Coming Soon</span></div>
+<div className="dcard locked"><div className="dcard-icon">📋</div><div className="dcard-name">ACH Forms</div><span className="dcard-cs">Coming Soon</span></div>
+<div className="dcard locked"><div className="dcard-icon">✉️</div><div className="dcard-name">Welcome Letters</div><span className="dcard-cs">Coming Soon</span></div>
+<div className="dcard locked"><div className="dcard-icon">📊</div><div className="dcard-name">Budget</div><span className="dcard-cs">Coming Soon</span></div>
+<div className="dcard locked"><div className="dcard-icon">📝</div><div className="dcard-name">ARC Forms</div><span className="dcard-cs">Coming Soon</span></div>
         </div>
 
         <div className="sh">
