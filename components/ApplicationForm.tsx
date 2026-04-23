@@ -6,8 +6,8 @@ import { createClient } from "@supabase/supabase-js";
 
 // ── Supabase client (public/read-only anon key) ──────────────────────────────
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
 // ── Brand tokens — PMI Top Florida Properties ─────────────────────────────────
@@ -292,10 +292,10 @@ const flags    = { en: "🇺🇸", es: "🇪🇸", pt: "🇧🇷", fr: "🇫🇷
 const langNames = { en: "English", es: "Español", pt: "Português", fr: "Français" };
 
 // ── Stripe singleton ──────────────────────────────────────────────────────────
-let stripePromise;
+let stripePromise: ReturnType<typeof loadStripe> | null = null;
 const getStripe = () => {
   if (!stripePromise)
-    stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+    stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
   return stripePromise;
 };
 
@@ -303,7 +303,14 @@ const getStripe = () => {
 // SUB-COMPONENTS
 // ════════════════════════════════════════════════════════════════
 
-function UploadBox({ label, t, onUpload, uploaded, uploading }) {
+type UploadBoxProps = {
+  label: string;
+  t: typeof translations.en;
+  onUpload: (file: File) => void;
+  uploaded: File | null;
+  uploading: boolean;
+};
+function UploadBox({ label, t, onUpload, uploaded, uploading }: UploadBoxProps) {
   const [dragging, setDragging] = useState(false);
   const uid = `file-${label.replace(/\s+/g, "-")}`;
   return (
@@ -315,7 +322,7 @@ function UploadBox({ label, t, onUpload, uploaded, uploading }) {
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
         onDrop={(e) => { e.preventDefault(); setDragging(false); if (e.dataTransfer.files[0]) onUpload(e.dataTransfer.files[0]); }}
-        onClick={() => document.getElementById(uid).click()}
+        onClick={() => (document.getElementById(uid) as HTMLInputElement | null)?.click()}
         style={{
           border: `1.5px dashed ${dragging ? "#f26a1b" : uploaded ? "#1a6b3c" : "#e5e7eb"}`,
           borderRadius: 4,
@@ -328,7 +335,7 @@ function UploadBox({ label, t, onUpload, uploaded, uploading }) {
         }}
       >
         <input id={uid} type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ display: "none" }}
-          onChange={(e) => { if (e.target.files[0]) onUpload(e.target.files[0]); }} />
+          onChange={(e) => { if (e.target.files?.[0]) onUpload(e.target.files[0]); }} />
         {uploading ? (
           <div style={{ color: "#f26a1b", fontSize: 13 }}>Uploading…</div>
         ) : uploaded ? (
@@ -347,7 +354,13 @@ function UploadBox({ label, t, onUpload, uploaded, uploading }) {
   );
 }
 
-function ApplicantFields({ index, t, data, onChange }) {
+type ApplicantFieldsProps = {
+  index: number;
+  t: typeof translations.en;
+  data: Record<string, string>;
+  onChange: (idx: number, key: string, val: string) => void;
+};
+function ApplicantFields({ index, t, data, onChange }: ApplicantFieldsProps) {
   const fields = [
     { key: "firstName",      label: t.firstName,      type: "text"  },
     { key: "lastName",       label: t.lastName,       type: "text"  },
@@ -391,14 +404,14 @@ function ApplicantFields({ index, t, data, onChange }) {
 // ════════════════════════════════════════════════════════════════
 export default function ApplicationForm({ preselectedAssociation = null }) {
   const [lang, setLang]               = useState("en");
-  const t                             = translations[lang];
+  const t                             = translations[lang as keyof typeof translations];
   const [step, setStep]               = useState(0);
   const [association, setAssociation] = useState(preselectedAssociation || "");
-  const [associations, setAssociations] = useState([]);
+  const [associations, setAssociations] = useState<{ name: string; code: string }[]>([]);
   const [assocLoading, setAssocLoading] = useState(true);
   const [appType, setAppType]         = useState("");
   const [coupleOption, setCoupleOption] = useState("");
-  const [applicants, setApplicants]   = useState([{}]);
+  const [applicants, setApplicants]   = useState<Record<string, string>[]>([{}]);
   const [principals, setPrincipals]   = useState([{ name: "", dob: "" }]);
   const [sunbizId, setSunbizId]       = useState("");
   const [entityName, setEntityName]   = useState("");
@@ -446,14 +459,14 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
   };
   const total = calcTotal();
 
-  const updateApplicant = (idx, key, val) =>
+  const updateApplicant = (idx: number, key: string, val: string) =>
     setApplicants((prev) => { const n = [...prev]; n[idx] = { ...n[idx], [key]: val }; return n; });
 
-  const updatePrincipal = (idx, key, val) =>
+  const updatePrincipal = (idx: number, key: string, val: string) =>
     setPrincipals((prev) => { const n = [...prev]; n[idx] = { ...n[idx], [key]: val }; return n; });
 
   // ── Document upload to Supabase Storage ────────────────────────────────────
-  const uploadDoc = useCallback(async (file, docType) => {
+  const uploadDoc = useCallback(async (file: File, docType: string) => {
     if (!file) return;
     const MAX = 10 * 1024 * 1024;
     if (file.size > MAX) { setError("File too large — max 10 MB."); return; }
@@ -537,9 +550,7 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
       }
 
       // Primary applicant email
-      const applicantEmail = isCommercial
-        ? (applicants[0]?.email || "")
-        : (applicants[0]?.email || "");
+      const applicantEmail = applicants[0]?.email ?? "";
 
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
@@ -557,6 +568,7 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
       if (!res.ok) throw new Error("Checkout session failed");
       const { sessionId } = await res.json();
       const stripe = await getStripe();
+      if (!stripe) throw new Error("Failed to initialize Stripe");
       await stripe.redirectToCheckout({ sessionId });
     } catch (err) {
       console.error("Payment error:", err);
@@ -575,7 +587,7 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
 
   // ── Shared input style ─────────────────────────────────────────────────────
   const inp = {
-    width: "100%", boxSizing: "border-box", padding: "10px 12px",
+    width: "100%", boxSizing: "border-box" as const, padding: "10px 12px",
     borderRadius: 3, border: "1px solid #e5e7eb", fontSize: 14,
     color: "#0d0d0d", background: "#fff", outline: "none",
     fontFamily: "inherit", transition: "border-color 0.15s",
@@ -606,7 +618,7 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
             onClick={() => setLangOpen(!langOpen)}
             style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 20, padding: "5px 14px", color: "rgba(255,255,255,0.7)", fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
           >
-            {flags[lang]} {langNames[lang]} ▾
+            {flags[lang as keyof typeof flags]} {langNames[lang as keyof typeof langNames]} ▾
           </button>
           {langOpen && (
             <div style={{ position: "absolute", top: "110%", left: "50%", transform: "translateX(-50%)", background: "#fff", borderRadius: 4, boxShadow: "0 8px 32px rgba(0,0,0,0.3)", overflow: "hidden", zIndex: 100, minWidth: 150 }}>
@@ -616,7 +628,7 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
                   onClick={() => { setLang(l); setLangOpen(false); }}
                   style={{ padding: "10px 16px", cursor: "pointer", fontSize: 13, color: l === lang ? "#f26a1b" : "#0d0d0d", fontWeight: l === lang ? 600 : 400, background: l === lang ? "#fff7f0" : "transparent", display: "flex", gap: 8, alignItems: "center" }}
                 >
-                  {flags[l]} {langNames[l]}
+                  {flags[l as keyof typeof flags]} {langNames[l as keyof typeof langNames]}
                 </div>
               ))}
             </div>
