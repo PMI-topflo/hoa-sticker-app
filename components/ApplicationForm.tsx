@@ -882,7 +882,7 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
       </div>
 
       <div style={{ textAlign: "center", marginTop: 20, color: "rgba(255,255,255,0.2)", fontSize: 11 }}>
-        © 2026 PMI Top Florida Properties · mypmitop.com
+        © 2026 PMI Top Florida Properties · pmitop.com
       </div>
     </div>
   );

@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MAIA Platform — Business Summary · PMI Top Florida Properties</title>
+<style>
+  /* ── Reset & base ─────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:   #0a2342;
+    --blue:   #1a56db;
+    --teal:   #0e9f8c;
+    --gold:   #d4a017;
+    --light:  #f4f7fb;
+    --border: #d1dbe8;
+    --text:   #1a2333;
+    --muted:  #5a6a80;
+    --white:  #ffffff;
+  }
+
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--white);
+  }
+
+  /* ── Print setup ──────────────────────────────────────── */
+  @page {
+    size: letter;
+    margin: 0.7in 0.75in 0.8in 0.75in;
+  }
+  @media print {
+    .no-print { display: none !important; }
+    .page-break { page-break-before: always; }
+    section { page-break-inside: avoid; }
+  }
+
+  /* ── Cover page ───────────────────────────────────────── */
+  .cover {
+    background: linear-gradient(145deg, var(--navy) 0%, #163a66 60%, #1a56db 100%);
+    color: var(--white);
+    padding: 2.5rem 2.5rem 2rem;
+    border-radius: 6px;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    right: -60px; top: -60px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+  .cover-tag {
+    font-size: 8pt;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 0.6rem;
+  }
+  .cover h1 {
+    font-size: 28pt;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+    margin-bottom: 0.4rem;
+  }
+  .cover h1 span { color: #7ec8e3; }
+  .cover-sub {
+    font-size: 12pt;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 1.6rem;
+  }
+  .cover-meta {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    font-size: 9pt;
+    color: rgba(255,255,255,0.55);
+    border-top: 1px solid rgba(255,255,255,0.15);
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+  }
+  .cover-meta strong { color: rgba(255,255,255,0.85); display: block; font-size: 10pt; }
+
+  /* ── KPI strip ────────────────────────────────────────── */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .kpi {
+    background: var(--light);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .kpi-num {
+    font-size: 22pt;
+    font-weight: 800;
+    color: var(--blue);
+    line-height: 1;
+  }
+  .kpi-label {
+    font-size: 8pt;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-top: 0.3rem;
+  }
+
+  /* ── Section headings ─────────────────────────────────── */
+  .section-title {
+    font-size: 13pt;
+    font-weight: 700;
+    color: var(--navy);
+    border-bottom: 2px solid var(--blue);
+    padding-bottom: 0.3rem;
+    margin: 1.8rem 0 1rem;
+    letter-spacing: -0.2px;
+  }
+  .section-title span {
+    display: inline-block;
+    background: var(--blue);
+    color: var(--white);
+    font-size: 8pt;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+  }
+
+  /* ── Two-column grid ──────────────────────────────────── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  /* ── Cards ────────────────────────────────────────────── */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem 1.1rem;
+  }
+  .card h3 {
+    font-size: 10pt;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .card h3 .icon {
+    font-size: 13pt;
+  }
+  .card ul {
+    padding-left: 1.1rem;
+    color: var(--text);
+    font-size: 9.5pt;
+  }
+  .card ul li { margin-bottom: 0.2rem; }
+
+  /* ── Feature pill cards ───────────────────────────────── */
+  .feature-card {
+    background: var(--light);
+    border-left: 3px solid var(--teal);
+    border-radius: 0 6px 6px 0;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.6rem;
+  }
+  .feature-card h4 {
+    font-size: 9.5pt;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 0.2rem;
+  }
+  .feature-card p {
+    font-size: 9pt;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* ── Table ────────────────────────────────────────────── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    margin-bottom: 1rem;
+  }
+  thead tr { background: var(--navy); color: var(--white); }
+  thead th {
+    padding: 0.55rem 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  tbody tr:nth-child(even) { background: var(--light); }
+  tbody tr:hover { background: #e8f0fb; }
+  tbody td {
+    padding: 0.45rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  td.tag {
+    font-size: 8pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 20px;
+    font-size: 7.5pt;
+    font-weight: 700;
+  }
+  .badge-green  { background: #d1fae5; color: #065f46; }
+  .badge-blue   { background: #dbeafe; color: #1e40af; }
+  .badge-gold   { background: #fef3c7; color: #92400e; }
+  .badge-gray   { background: #f3f4f6; color: #374151; }
+
+  /* ── Assoc grid ───────────────────────────────────────── */
+  .assoc-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .assoc-chip {
+    background: var(--light);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.4rem 0.5rem;
+    font-size: 8.5pt;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.3;
+  }
+  .assoc-chip .code {
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: var(--blue);
+    display: block;
+  }
+
+  /* ── Workflow steps ───────────────────────────────────── */
+  .flow-step {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    align-items: flex-start;
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: var(--white);
+    font-size: 8pt;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 1px;
+  }
+  .step-body {
+    font-size: 9.5pt;
+    line-height: 1.45;
+  }
+  .step-body strong { color: var(--navy); }
+
+  /* ── Channel pills ────────────────────────────────────── */
+  .channel-pill {
+    display: inline-block;
+    background: var(--navy);
+    color: var(--white);
+    font-size: 8pt;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+  }
+
+  /* ── Footer ───────────────────────────────────────────── */
+  .doc-footer {
+    margin-top: 2.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    font-size: 8pt;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ── Print button ─────────────────────────────────────── */
+  .print-btn {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 11pt;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(26,86,219,0.4);
+    z-index: 999;
+  }
+  .print-btn:hover { background: #1648b8; }
+
+  /* ── Wrapper ──────────────────────────────────────────── */
+  .page { max-width: 8.5in; margin: 0 auto; padding: 1rem; }
+
+  /* ── Inline highlight ─────────────────────────────────── */
+  em.hi { font-style: normal; color: var(--blue); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ═══════════════════════════════ COVER ═══════════════════════════════ -->
+  <div class="cover">
+    <div class="cover-tag">Confidential · Internal Business Summary</div>
+    <h1>MAIA <span>Platform</span></h1>
+    <div class="cover-sub">HOA Homeowner Services &amp; Management Platform</div>
+    <div class="cover-meta">
+      <div><strong>Company</strong>PMI Top Florida Properties</div>
+      <div><strong>Contact</strong>PMI@topfloridaproperties.com</div>
+      <div><strong>Stack</strong>Next.js · Supabase · Stripe · Twilio · Claude AI</div>
+      <div><strong>Prepared</strong>April 2026</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ KPIs ════════════════════════════════ -->
+  <div class="kpi-strip">
+    <div class="kpi"><div class="kpi-num">25</div><div class="kpi-label">HOA Associations</div></div>
+    <div class="kpi"><div class="kpi-num">800+</div><div class="kpi-label">Homeowners Served</div></div>
+    <div class="kpi"><div class="kpi-num">6</div><div class="kpi-label">Languages Supported</div></div>
+    <div class="kpi"><div class="kpi-num">12+</div><div class="kpi-label">External Integrations</div></div>
+  </div>
+
+  <!-- ═══════════════════════════════ OVERVIEW ════════════════════════════ -->
+  <div class="section-title"><span>01</span>Platform Overview</div>
+  <p style="margin-bottom:0.8rem;">
+    <strong>MAIA</strong> (Management &amp; Automated Interaction Assistant) is an enterprise-grade SaaS platform built by PMI Top Florida Properties to digitize and automate HOA homeowner services across 25 associations in South Florida. It provides residents, board members, real estate agents, and vendors with a single omnichannel touchpoint for all property management needs — from paying dues and submitting applications to requesting maintenance and accessing documents.
+  </p>
+  <p>
+    The platform is built on <em class="hi">Next.js 16 (App Router)</em> with <em class="hi">Supabase</em> as the backend, deployed on <em class="hi">Vercel</em>, and integrates Stripe for payments, Twilio for multi-channel communications, Claude AI for intelligent responses, and ApplyCheck for applicant screening.
+  </p>
+
+  <!-- ═══════════════════════════════ ASSOCIATIONS ════════════════════════ -->
+  <div class="section-title"><span>02</span>Associations Served</div>
+  <div class="assoc-grid">
+    <div class="assoc-chip"><span class="code">ABBOTT</span>Abbott Ave</div>
+    <div class="assoc-chip"><span class="code">BROOK</span>Brook</div>
+    <div class="assoc-chip"><span class="code">CRYSTALH</span>Crystal Heights</div>
+    <div class="assoc-chip"><span class="code">DELVISTA</span>Del Vista</div>
+    <div class="assoc-chip"><span class="code">ESSI</span>Essi</div>
+    <div class="assoc-chip"><span class="code">FIFTH</span>Fifth</div>
+    <div class="assoc-chip"><span class="code">GALLERIAV</span>Galleria V</div>
+    <div class="assoc-chip"><span class="code">GOLDKEY</span>Gold Key</div>
+    <div class="assoc-chip"><span class="code">ISLANDHOUSE</span>Island House</div>
+    <div class="assoc-chip"><span class="code">KANE</span>Kane</div>
+    <div class="assoc-chip"><span class="code">KIMGARDEN</span>Kim Garden</div>
+    <div class="assoc-chip"><span class="code">LAFARMS</span>La Farms</div>
+    <div class="assoc-chip"><span class="code">LAKEVIEW</span>Lakeview</div>
+    <div class="assoc-chip"><span class="code">MACO</span>Maco</div>
+    <div class="assoc-chip"><span class="code">MANORSXI</span>Manors XI</div>
+    <div class="assoc-chip"><span class="code">ONEBAY</span>One Bay</div>
+    <div class="assoc-chip"><span class="code">PARCVIEW</span>Parcview</div>
+    <div class="assoc-chip"><span class="code">SERENITYIV</span>Serenity IV</div>
+    <div class="assoc-chip"><span class="code">SHORELAND</span>Shoreland</div>
+    <div class="assoc-chip"><span class="code">VENETIAN1</span>Venetian 1</div>
+    <div class="assoc-chip"><span class="code">VENETIAN2</span>Venetian 2</div>
+    <div class="assoc-chip"><span class="code">VENETIAN5</span>Venetian 5</div>
+    <div class="assoc-chip"><span class="code">VENETIANREC</span>Venetian Rec</div>
+    <div class="assoc-chip"><span class="code">WEDGE57</span>Wedgewood 57</div>
+    <div class="assoc-chip"><span class="code">WEDGEANSIN</span>Wedge Ansin</div>
+  </div>
+  <p style="font-size:9pt;color:var(--muted);margin-bottom:0.5rem;">
+    ★ <strong>Lakeview</strong> and <strong>Venetian Recreation</strong> are master associations — bookkeeping only. Application and estoppel workflows are suppressed for these two.
+  </p>
+
+  <!-- ═══════════════════════════════ FEATURES ════════════════════════════ -->
+  <div class="section-title page-break"><span>03</span>Core Features &amp; Capabilities</div>
+
+  <div class="two-col">
+    <div>
+      <div class="feature-card">
+        <h4>🏠 Association Resident Portal</h4>
+        <p>Each of the 25 associations has a dedicated page accessible by homeowners. Pages include links to pay HOA fees, download the PMI Mobile App, submit estoppel requests, and access a Google Drive document library organized into 12 categories (rules, financials, maintenance, board minutes, leases, condo docs, insurance, ACH forms, welcome letters, budget, FAQ, violations).</p>
+      </div>
+      <div class="feature-card">
+        <h4>📋 Resident Application System</h4>
+        <p>A multi-step, multilingual application wizard (EN/ES/PT/FR) handles Individual ($100), Couple ($150–$200), Additional Resident ($100), and Commercial ($100/principal) applications. Includes document upload (government ID, proof of income, marriage certificate), Stripe payment, and ApplyCheck background screening.</p>
+      </div>
+      <div class="feature-card">
+        <h4>💳 Stripe Payment Processing</h4>
+        <p>Checkout sessions created server-side with dynamic line items based on application type. Webhook listener marks applications as paid, triggers confirmation emails to applicants and staff, and fires the ApplyCheck screening flow. All price IDs are environment-configured.</p>
+      </div>
+      <div class="feature-card">
+        <h4>🔍 Applicant Screening</h4>
+        <p>ApplyCheck integration sends screening invitations post-payment. Supports SmartMove (SSN-based) for domestic applicants and an International package. Multi-principal support for commercial entities. Status tracked in the applications table (invited / partial / error).</p>
+      </div>
+    </div>
+    <div>
+      <div class="feature-card">
+        <h4>🤖 AI Omnichannel Communications</h4>
+        <p>A unified webhook handles inbound SMS, WhatsApp, and voice IVR (Twilio). Maia — the AI assistant — identifies callers by phone number across 5 contact tables, maintains multi-turn conversation state in Supabase, and responds in 6 languages (EN, ES, PT, FR, HE, RU). Powered by Claude AI for natural language understanding.</p>
+      </div>
+      <div class="feature-card">
+        <h4>🛠️ Admin Dashboard</h4>
+        <p>Staff-facing dashboard at <code>/admin</code> provides a searchable, filterable, paginated view of 800+ homeowners across all associations. Supports full CRUD (add, edit, delete) via server actions. Includes a New Unit Buyer form with file uploads, document archiving to Supabase Storage, and automatic HTML email notification to the team.</p>
+      </div>
+      <div class="feature-card">
+        <h4>📧 Email System</h4>
+        <p>Centralized email gateway at <code>/api/send-email</code> using Gmail API (OAuth2) via the <code>maia@pmitop.com</code> Google Workspace alias. Includes RFC 2822 MIME construction, module-level token caching, and graceful fallback to Resend. Emails sent for: application confirmations, payment receipts, buyer notifications, escalations.</p>
+      </div>
+      <div class="feature-card">
+        <h4>📁 Document &amp; File Storage</h4>
+        <p>Supabase Storage manages two buckets: <code>application-docs</code> (gov ID, income proof, marriage certificates) and <code>buyer-docs</code> (purchase contracts, ID copies, proof of funds). Files are accessible via signed URLs valid for 30 days. Max file size 10 MB; formats: PDF, JPG, PNG, DOCX.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ AI COMM ══════════════════════════════ -->
+  <div class="section-title"><span>04</span>AI Communication Flows (Maia Assistant)</div>
+  <p style="margin-bottom:0.75rem;font-size:9.5pt;">
+    Inbound contacts via <span class="channel-pill">SMS</span><span class="channel-pill">WhatsApp</span><span class="channel-pill">Voice IVR</span> are handled by a stateful flow engine. Maia identifies the caller, routes to the correct workflow, and maintains context across multiple turns.
+  </p>
+  <div class="three-col" style="margin-bottom:0.5rem;">
+    <div class="card">
+      <h3><span class="icon">🚗</span>Parking Sticker</h3>
+      <ul>
+        <li>Collect plate, make, model, color</li>
+        <li>Create sticker_request record</li>
+        <li>Send Stripe payment link</li>
+        <li>Notify staff of new request</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="icon">🔧</span>Maintenance</h3>
+      <ul>
+        <li>Intake description &amp; urgency</li>
+        <li>Create Rentvine work order (tenants) or maintenance_request (owners)</li>
+        <li>Notify maintenance team</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="icon">💰</span>Payment Inquiry</h3>
+      <ul>
+        <li>Show current balance</li>
+        <li>Explain ACH, portal, check, app options</li>
+        <li>Send payment portal link</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="icon">📅</span>Scheduling</h3>
+      <ul>
+        <li>Book unit inspection</li>
+        <li>Move-in walkthrough</li>
+        <li>Management meeting</li>
+        <li>Store in board_tickets</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="icon">🏗️</span>ARC Request</h3>
+      <ul>
+        <li>Architectural review intake</li>
+        <li>Collect modification details</li>
+        <li>Upload supporting docs</li>
+        <li>Route to board for approval</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="icon">🏢</span>Agent Portal</h3>
+      <ul>
+        <li>Owner/seller representation</li>
+        <li>Buyer coordination</li>
+        <li>Tenant applicant flow</li>
+        <li>Listing agreement upload</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="icon">📄</span>Documents FAQ</h3>
+      <ul>
+        <li>AI answers rules &amp; policy questions</li>
+        <li>Pulls from association_faq table</li>
+        <li>Multilingual responses</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="icon">🏦</span>Vendor ACH</h3>
+      <ul>
+        <li>Vendor payment setup flow</li>
+        <li>Collect banking details</li>
+        <li>Route to billing team</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="icon">🚨</span>Emergency</h3>
+      <ul>
+        <li>Alert emergency team by email</li>
+        <li>Provide 911 coordination</li>
+        <li>Log incident to board_tickets</li>
+      </ul>
+    </div>
+  </div>
+  <p style="font-size:9pt;color:var(--muted);">All flows include automatic feedback collection (thumbs or 1–5 stars). Negative ratings trigger Claude AI sentiment analysis and escalate to board_tickets with an email alert to staff.</p>
+
+  <!-- ═══════════════════════════════ WORKFLOWS ═══════════════════════════ -->
+  <div class="section-title page-break"><span>05</span>Key Business Workflows</div>
+  <div class="two-col">
+    <div>
+      <p style="font-size:9.5pt;font-weight:700;color:var(--navy);margin-bottom:0.5rem;">New Resident Application</p>
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><strong>Select type</strong> — Individual, Couple, Additional Resident, or Commercial Entity</div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><strong>Enter applicant details</strong> — name, email, DOB, phone; co-applicants as needed</div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><strong>Upload documents</strong> — government ID, proof of income, marriage certificate (optional)</div></div>
+      <div class="flow-step"><div class="step-num">4</div><div class="step-body"><strong>Stripe payment</strong> — $100–$200 depending on type; hosted checkout</div></div>
+      <div class="flow-step"><div class="step-num">5</div><div class="step-body"><strong>Webhook fires</strong> — application marked paid, confirmation email sent, ApplyCheck screening triggered</div></div>
+      <div class="flow-step"><div class="step-num">6</div><div class="step-body"><strong>Board review</strong> — 7–10 business days; decision sent via email with reference number</div></div>
+    </div>
+    <div>
+      <p style="font-size:9.5pt;font-weight:700;color:var(--navy);margin-bottom:0.5rem;">New Unit Buyer Notification</p>
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><strong>Staff submits form</strong> at <code>/admin/new-buyer</code> with buyer, seller, and agent details</div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><strong>Documents uploaded</strong> — purchase contract, ID copies, proof of funds to Supabase Storage</div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><strong>Email dispatched</strong> — HTML notification with signed file links (30-day access) sent to relevant departments</div></div>
+      <div class="flow-step"><div class="step-num">4</div><div class="step-body"><strong>Record created</strong> — buyer_notification entry stored in applications table for audit trail</div></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ INTEGRATIONS ═════════════════════════ -->
+  <div class="section-title"><span>06</span>External Integrations</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Service</th>
+        <th>Purpose</th>
+        <th>Category</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Stripe</strong></td><td>Payment processing, checkout sessions, webhooks</td><td class="tag">Payments</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><strong>ApplyCheck</strong></td><td>Background &amp; credit screening for applicants</td><td class="tag">Compliance</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><strong>Supabase</strong></td><td>Database (Postgres), file storage, auth</td><td class="tag">Backend</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><strong>Twilio</strong></td><td>SMS, WhatsApp Business API, Voice IVR</td><td class="tag">Comms</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><strong>Anthropic / Claude</strong></td><td>AI-powered natural language responses in Maia</td><td class="tag">AI / LLM</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><strong>Gmail API</strong></td><td>Transactional email via maia@pmitop.com (OAuth2)</td><td class="tag">Email</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><strong>Resend</strong></td><td>Email fallback provider</td><td class="tag">Email</td><td><span class="badge badge-gold">Fallback</span></td></tr>
+      <tr><td><strong>Rentvine</strong></td><td>Residential property management — work orders, contacts</td><td class="tag">PropMgmt</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><strong>CincWebAxis</strong></td><td>HOA resident portal for fee payments &amp; invoice approvals</td><td class="tag">Portal</td><td><span class="badge badge-blue">Linked</span></td></tr>
+      <tr><td><strong>Condocerts</strong></td><td>Estoppel certificate generation for property transactions</td><td class="tag">Legal</td><td><span class="badge badge-blue">Linked</span></td></tr>
+      <tr><td><strong>Google Drive</strong></td><td>Per-association document repositories (12 categories)</td><td class="tag">Storage</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><strong>Google Cloud TTS</strong></td><td>Text-to-speech for voice IVR responses</td><td class="tag">Voice</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><strong>Vercel</strong></td><td>Hosting, CI/CD, edge deployment</td><td class="tag">Infra</td><td><span class="badge badge-green">Active</span></td></tr>
+    </tbody>
+  </table>
+
+  <!-- ═══════════════════════════════ DATABASE ═════════════════════════════ -->
+  <div class="section-title"><span>07</span>Database Schema Overview</div>
+  <div class="two-col">
+    <div>
+      <p style="font-size:9pt;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.4rem;">People &amp; Contacts</p>
+      <table>
+        <thead><tr><th>Table</th><th>Key Fields</th></tr></thead>
+        <tbody>
+          <tr><td><strong>owners</strong></td><td>name, phone, unit, association_code, language</td></tr>
+          <tr><td><strong>association_tenants</strong></td><td>phone, unit, association_id</td></tr>
+          <tr><td><strong>board_members</strong></td><td>position, email, active</td></tr>
+          <tr><td><strong>real_estate_agents</strong></td><td>phone, language</td></tr>
+          <tr><td><strong>vendor_directory</strong></td><td>name, phone, language, association_id</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:9pt;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin:0.7rem 0 0.4rem;">Communication</p>
+      <table>
+        <thead><tr><th>Table</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><strong>conversation_state</strong></td><td>Multi-turn flow tracking per phone number</td></tr>
+          <tr><td><strong>general_conversations</strong></td><td>Full conversation logs (topic, summary, channel)</td></tr>
+          <tr><td><strong>conversation_feedback</strong></td><td>Ratings, AI sentiment, tags, staff review</td></tr>
+          <tr><td><strong>board_tickets</strong></td><td>Escalations, support requests, incidents</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <p style="font-size:9pt;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.4rem;">Applications &amp; Payments</p>
+      <table>
+        <thead><tr><th>Table</th><th>Key Fields</th></tr></thead>
+        <tbody>
+          <tr><td><strong>applications</strong></td><td>app_type, association, applicants[], stripe_payment_status, applycheck_status</td></tr>
+          <tr><td><strong>associations</strong></td><td>code, name, type, florida_statute, active</td></tr>
+          <tr><td><strong>association_faq</strong></td><td>question, answer (per association)</td></tr>
+          <tr><td><strong>association_drive_folders</strong></td><td>folder_type, drive_link</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:9pt;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin:0.7rem 0 0.4rem;">Operations</p>
+      <table>
+        <thead><tr><th>Table</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><strong>sticker_requests</strong></td><td>Parking permit requests &amp; payment status</td></tr>
+          <tr><td><strong>vehicles</strong></td><td>Registered homeowner vehicles</td></tr>
+          <tr><td><strong>maintenance_requests</strong></td><td>Work orders (description, urgency, status)</td></tr>
+          <tr><td><strong>agent_requests</strong></td><td>RE agent representation &amp; document tracking</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ PRICING ══════════════════════════════ -->
+  <div class="section-title page-break"><span>08</span>Application Fee Schedule</div>
+  <table style="max-width:500px;">
+    <thead>
+      <tr><th>Application Type</th><th>Fee</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Individual</td><td><strong>$100</strong></td><td>Single applicant</td></tr>
+      <tr><td>Couple (with marriage certificate)</td><td><strong>$150</strong></td><td>One combined screening</td></tr>
+      <tr><td>Couple (without certificate)</td><td><strong>$200</strong></td><td>Two individual screenings at $100 each</td></tr>
+      <tr><td>Additional Resident</td><td><strong>$100</strong></td><td>Per additional resident added to a unit</td></tr>
+      <tr><td>Commercial Entity</td><td><strong>$100 / principal</strong></td><td>Each principal screened individually</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ═══════════════════════════════ TECH STACK ═══════════════════════════ -->
+  <div class="section-title"><span>09</span>Technology Stack</div>
+  <div class="three-col">
+    <div class="card">
+      <h3><span class="icon">⚙️</span>Frontend &amp; Framework</h3>
+      <ul>
+        <li>Next.js 16.2 (App Router)</li>
+        <li>React 19.2</li>
+        <li>TypeScript (strict)</li>
+        <li>Tailwind CSS v4</li>
+        <li>Deployed on Vercel</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="icon">🗄️</span>Backend &amp; Data</h3>
+      <ul>
+        <li>Supabase (Postgres)</li>
+        <li>Supabase Storage (S3-compatible)</li>
+        <li>Next.js Server Actions</li>
+        <li>Next.js Route Handlers (API)</li>
+        <li>Service-role key for admin ops</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="icon">🔗</span>Runtime Services</h3>
+      <ul>
+        <li>Stripe (payments)</li>
+        <li>Twilio (SMS/WhatsApp/Voice)</li>
+        <li>Claude API (AI responses)</li>
+        <li>Gmail API OAuth2 (email)</li>
+        <li>ApplyCheck (screening)</li>
+        <li>Rentvine (property mgmt)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ SECURITY ═════════════════════════════ -->
+  <div class="section-title"><span>10</span>Security &amp; Compliance</div>
+  <div class="two-col">
+    <div class="card">
+      <h3><span class="icon">🔒</span>Data Security</h3>
+      <ul>
+        <li>Supabase RLS (Row Level Security) enforced at DB layer</li>
+        <li>Service-role key restricted to server-side only</li>
+        <li>Stripe webhook signature verification (HMAC)</li>
+        <li>Internal API endpoints protected by <code>x-internal-secret</code> header</li>
+        <li>Signed URLs for file access (30-day TTL)</li>
+        <li>SSN / financial data handled exclusively by ApplyCheck (never stored locally)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="icon">📜</span>Compliance Features</h3>
+      <ul>
+        <li>Florida Statute reference field per association</li>
+        <li>Board approval workflow for all resident applications</li>
+        <li>Invoice approval system via CincWebAxis portal</li>
+        <li>Applicant consent checkbox required before payment</li>
+        <li>Full conversation audit trail in Supabase</li>
+        <li>Estoppel certificate workflow (Condocerts) for property transactions</li>
+        <li>ACH authorization forms per association</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ STAKEHOLDERS ═════════════════════════ -->
+  <div class="section-title"><span>11</span>User Personas &amp; Access</div>
+  <table>
+    <thead>
+      <tr><th>Persona</th><th>Primary Entry Point</th><th>Key Actions</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Homeowner</strong></td><td><code>/[association]</code> portal page</td><td>Pay fees, access documents, submit ARC/maintenance, register vehicle</td></tr>
+      <tr><td><strong>Rental Applicant</strong></td><td><code>/apply</code></td><td>Complete application, upload documents, pay screening fee</td></tr>
+      <tr><td><strong>PMI Staff</strong></td><td><code>/admin</code></td><td>Manage homeowner records, submit buyer notifications, review applications</td></tr>
+      <tr><td><strong>Board Member</strong></td><td>SMS/WhatsApp + CincWebAxis</td><td>Approve invoices, review board tickets, receive escalation alerts</td></tr>
+      <tr><td><strong>Real Estate Agent</strong></td><td>SMS/WhatsApp flow</td><td>Submit listing agreements, request estoppels, coordinate tenant applications</td></tr>
+      <tr><td><strong>Vendor</strong></td><td>SMS/WhatsApp flow</td><td>Set up ACH payment, submit invoices via billing team</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ═══════════════════════════════ FOOTER ═══════════════════════════════ -->
+  <div class="doc-footer">
+    <span>PMI Top Florida Properties · PMI@topfloridaproperties.com · 305.900.5077</span>
+    <span>MAIA Platform Business Summary · April 2026 · Confidential</span>
+  </div>
+
+</div><!-- /.page -->
+
+<!-- ── Print button (hidden in print) ─────────────────── -->
+<button class="print-btn no-print" onclick="window.print()">⬇ Save as PDF</button>
+
+</body>
+</html>
