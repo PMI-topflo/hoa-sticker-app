@@ -70,7 +70,7 @@ const COPY: Record<Lang, T> = {
     vendorSentBody: 'We\'ve sent the required forms to your email. Our billing team will follow up shortly.',
     selectAssoc: '— Select Association —',
     personas: [
-      { key: 'homeowner', icon: '🏠', title: 'Homeowner / Resident',  desc: 'Access your association portal & services' },
+      { key: 'homeowner', icon: '🏠', title: 'Unit Owner',  desc: 'Access your association portal & account' },
       { key: 'applicant', icon: '📋', title: 'Rental Applicant',       desc: 'Apply to rent in one of our communities' },
       { key: 'agent',     icon: '🏢', title: 'Real Estate Agent',      desc: 'Listings, buyers & estoppel requests' },
       { key: 'board',     icon: '👥', title: 'Board Member',           desc: 'Review invoices & approvals' },
@@ -105,7 +105,7 @@ const COPY: Record<Lang, T> = {
     vendorSentBody: 'Hemos enviado los formularios requeridos a tu correo. Nuestro equipo de facturación hará seguimiento.',
     selectAssoc: '— Seleccionar Asociación —',
     personas: [
-      { key: 'homeowner', icon: '🏠', title: 'Propietario / Residente', desc: 'Accede al portal de tu asociación' },
+      { key: 'homeowner', icon: '🏠', title: 'Propietario de Unidad', desc: 'Accede al portal y tu cuenta de asociación' },
       { key: 'applicant', icon: '📋', title: 'Solicitante de Alquiler',  desc: 'Solicita alquilar en nuestras comunidades' },
       { key: 'agent',     icon: '🏢', title: 'Agente de Bienes Raíces',  desc: 'Propiedades, compradores y estoppel' },
       { key: 'board',     icon: '👥', title: 'Miembro de la Junta',      desc: 'Revisa facturas y aprobaciones' },
@@ -140,7 +140,7 @@ const COPY: Record<Lang, T> = {
     vendorSentBody: 'Enviamos os formulários necessários para seu e-mail. Nossa equipe de cobrança entrará em contato.',
     selectAssoc: '— Selecionar Associação —',
     personas: [
-      { key: 'homeowner', icon: '🏠', title: 'Proprietário / Residente', desc: 'Acesse o portal da sua associação' },
+      { key: 'homeowner', icon: '🏠', title: 'Proprietário de Unidade', desc: 'Acesse o portal e sua conta de associação' },
       { key: 'applicant', icon: '📋', title: 'Candidato a Inquilino',    desc: 'Candidate-se em nossas comunidades' },
       { key: 'agent',     icon: '🏢', title: 'Corretor de Imóveis',      desc: 'Imóveis, compradores e estoppel' },
       { key: 'board',     icon: '👥', title: 'Membro da Diretoria',      desc: 'Revise faturas e aprovações' },
@@ -175,7 +175,7 @@ const COPY: Record<Lang, T> = {
     vendorSentBody: 'Nous avons envoyé les formulaires requis à votre adresse e-mail.',
     selectAssoc: '— Sélectionner une Association —',
     personas: [
-      { key: 'homeowner', icon: '🏠', title: 'Propriétaire / Résident',  desc: 'Accédez au portail de votre association' },
+      { key: 'homeowner', icon: '🏠', title: 'Propriétaire d\'Unité',  desc: 'Accédez au portail et à votre compte' },
       { key: 'applicant', icon: '📋', title: 'Candidat Locataire',       desc: 'Postulez dans nos communautés' },
       { key: 'agent',     icon: '🏢', title: 'Agent Immobilier',         desc: 'Annonces, acheteurs et estoppel' },
       { key: 'board',     icon: '👥', title: 'Membre du Conseil',        desc: 'Factures et approbations' },
@@ -210,7 +210,7 @@ const COPY: Record<Lang, T> = {
     vendorSentBody: 'שלחנו את הטפסים הנדרשים לכתובת המייל שלך.',
     selectAssoc: '— בחר עמותה —',
     personas: [
-      { key: 'homeowner', icon: '🏠', title: 'בעל דירה / תושב',  desc: 'גש לפורטל העמותה שלך' },
+      { key: 'homeowner', icon: '🏠', title: 'בעל יחידה',  desc: 'גש לפורטל ולחשבון העמותה שלך' },
       { key: 'applicant', icon: '📋', title: 'מועמד לשכירות',     desc: 'הגש מועמדות בקהילות שלנו' },
       { key: 'agent',     icon: '🏢', title: 'סוכן נדל"ן',        desc: 'רישומים, קונים ו-estoppel' },
       { key: 'board',     icon: '👥', title: 'חבר ועד',           desc: 'סקור חשבוניות ואישורים' },
@@ -245,7 +245,7 @@ const COPY: Record<Lang, T> = {
     vendorSentBody: 'Мы отправили необходимые формы на ваш email. Наша команда по выставлению счетов свяжется с вами.',
     selectAssoc: '— Выберите ассоциацию —',
     personas: [
-      { key: 'homeowner', icon: '🏠', title: 'Домовладелец / Житель',   desc: 'Доступ к порталу ассоциации' },
+      { key: 'homeowner', icon: '🏠', title: 'Владелец Единицы',   desc: 'Доступ к порталу и аккаунту ассоциации' },
       { key: 'applicant', icon: '📋', title: 'Арендатор',               desc: 'Подайте заявку в наших комплексах' },
       { key: 'agent',     icon: '🏢', title: 'Агент по недвижимости',   desc: 'Объявления, покупатели и estoppel' },
       { key: 'board',     icon: '👥', title: 'Член правления',          desc: 'Счета и одобрения' },
@@ -324,8 +324,8 @@ export default function Home() {
       const data = await res.json()
       if (data.found && data.staff) {
         router.push('/admin')
-      } else if (data.found && data.association_code) {
-        router.push(`/${data.association_code.toLowerCase()}`)
+      } else if (data.found && data.owner_id && data.association_code) {
+        router.push(`/my-account?id=${data.owner_id}&assoc=${data.association_code}`)
       } else {
         setView('homeowner-notfound')
       }

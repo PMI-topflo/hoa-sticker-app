@@ -8,86 +8,82 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ found: false, reason: 'missing_fields' })
   }
 
-  // Normalize phone to last 10 digits for flexible matching
   const digits = (phone ?? '').replace(/\D/g, '').slice(-10)
+  const inFirst = (firstName ?? '').toLowerCase().trim()
+  const inLast  = (lastName  ?? '').toLowerCase().trim()
 
-  // ── Staff check (silent — never exposed in response) ──────────────────────
-  {
-    const emailConds = email
-      ? `email.ilike.%${email}%,personal_email.ilike.%${email}%`
-      : null
-    const phoneConds = digits.length >= 7
-      ? `phone.ilike.%${digits}%,personal_phone.ilike.%${digits}%`
-      : null
+  // ── Staff check (silent — only personal_email / personal_phone) ───────────
+  const emailConds = email
+    ? `email.ilike.%${email}%,personal_email.ilike.%${email}%`
+    : null
+  const phoneConds = digits.length >= 7
+    ? `phone.ilike.%${digits}%,personal_phone.ilike.%${digits}%`
+    : null
+  const orClause = [emailConds, phoneConds].filter(Boolean).join(',')
 
-    const orClause = [emailConds, phoneConds].filter(Boolean).join(',')
+  if (orClause) {
+    const { data: staff } = await supabaseAdmin
+      .from('pmi_staff')
+      .select('id')
+      .eq('active', true)
+      .or(orClause)
+      .limit(1)
+      .single()
 
-    if (orClause) {
-      const { data: staff } = await supabaseAdmin
-        .from('pmi_staff')
-        .select('id')
-        .eq('active', true)
-        .or(orClause)
-        .limit(1)
-        .single()
-
-      if (staff?.id) {
-        return NextResponse.json({ found: true, staff: true })
-      }
+    if (staff?.id) {
+      return NextResponse.json({ found: true, staff: true })
     }
   }
 
-  // ── Search owners table ────────────────────────────────────────────────────
+  // ── Name soft-validator ───────────────────────────────────────────────────
+  // Returns false only when a provided name (≥3 chars) has zero overlap with DB.
+  function nameMatches(row: { first_name?: string | null; last_name?: string | null }): boolean {
+    if (!inFirst && !inLast) return true
+    const dbFull = `${row.first_name ?? ''} ${row.last_name ?? ''}`.toLowerCase().trim()
+    if (inFirst.length >= 3 && !dbFull.includes(inFirst) && !inFirst.startsWith(dbFull.split(' ')[0])) {
+      return false
+    }
+    if (inLast.length >= 3 && !dbFull.includes(inLast)) {
+      return false
+    }
+    return true
+  }
+
+  // ── Search owners by email ────────────────────────────────────────────────
   if (email) {
-    const { data: byEmail } = await supabaseAdmin
+    const { data: rows } = await supabaseAdmin
       .from('owners')
-      .select('association_code, association_name, first_name, last_name')
+      .select('id, association_code, first_name, last_name')
       .ilike('emails', `%${email}%`)
-      .limit(1)
-      .single()
+      .limit(5)
 
-    if (byEmail?.association_code) {
-      return NextResponse.json({ found: true, ...byEmail })
+    const match = rows?.find(nameMatches)
+    if (match?.association_code) {
+      return NextResponse.json({
+        found: true,
+        owner_id: match.id,
+        association_code: match.association_code,
+      })
     }
   }
 
+  // ── Search owners by phone ────────────────────────────────────────────────
   if (digits.length >= 7) {
-    const { data: byPhone } = await supabaseAdmin
+    const { data: rows } = await supabaseAdmin
       .from('owners')
-      .select('association_code, association_name, first_name, last_name')
-      .ilike('phone', `%${digits}%`)
-      .limit(1)
-      .single()
+      .select('id, association_code, first_name, last_name')
+      .or(
+        `phone.ilike.%${digits}%,phone_e164.ilike.%${digits}%,phone_2.ilike.%${digits}%,phone_3.ilike.%${digits}%`
+      )
+      .limit(5)
 
-    if (byPhone?.association_code) {
-      return NextResponse.json({ found: true, ...byPhone })
-    }
-  }
-
-  // ── Search association_tenants table ───────────────────────────────────────
-  if (email) {
-    const { data: tenantByEmail } = await supabaseAdmin
-      .from('association_tenants')
-      .select('association_code, first_name, last_name')
-      .ilike('email', `%${email}%`)
-      .limit(1)
-      .single()
-
-    if (tenantByEmail?.association_code) {
-      return NextResponse.json({ found: true, association_name: '', ...tenantByEmail })
-    }
-  }
-
-  if (digits.length >= 7) {
-    const { data: tenantByPhone } = await supabaseAdmin
-      .from('association_tenants')
-      .select('association_code, first_name, last_name')
-      .ilike('phone', `%${digits}%`)
-      .limit(1)
-      .single()
-
-    if (tenantByPhone?.association_code) {
-      return NextResponse.json({ found: true, association_name: '', ...tenantByPhone })
+    const match = rows?.find(nameMatches)
+    if (match?.association_code) {
+      return NextResponse.json({
+        found: true,
+        owner_id: match.id,
+        association_code: match.association_code,
+      })
     }
   }
 
