@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import SiteHeader from '@/components/SiteHeader'
 
 type Lang = 'en' | 'es' | 'pt' | 'fr' | 'he' | 'ru'
 type View =
@@ -433,44 +433,23 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-[#f5f5f4]" dir={isRtl ? 'rtl' : 'ltr'}>
 
-      {/* ── Header ─────────────────────────────────────────── */}
-      <header className="bg-black text-white">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-
-          {/* Logo */}
-          <a href="/" className="flex-shrink-0">
-            <Image
-              src="/pmi-icon.jpg"
-              alt="PMI Top Florida Properties"
-              width={160}
-              height={56}
-              className="h-10 w-auto object-contain"
-              priority
-            />
-          </a>
-
-          {/* Language tabs */}
-          <div className="flex gap-0.5 bg-white/10 rounded-lg p-1">
-            {LANG_TABS.map(l => (
-              <button
-                key={l.code}
-                onClick={() => setLang(l.code)}
-                className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
-                  lang === l.code
-                    ? 'bg-orange-500 text-white shadow-sm'
-                    : 'text-white/60 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                {l.label}
-              </button>
-            ))}
-          </div>
-
+      <SiteHeader subtitle="HOMEOWNER PORTAL">
+        <div className="flex gap-0.5 bg-white/10 rounded-lg p-1">
+          {LANG_TABS.map(l => (
+            <button
+              key={l.code}
+              onClick={() => setLang(l.code)}
+              className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
+                lang === l.code
+                  ? 'bg-[#f26a1b] text-white shadow-sm'
+                  : 'text-white/60 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              {l.label}
+            </button>
+          ))}
         </div>
-      </header>
-
-      {/* ── Orange accent bar ───────────────────────────────── */}
-      <div className="h-1 bg-orange-500" />
+      </SiteHeader>
 
       {/* ── Main ───────────────────────────────────────────── */}
       <main className="flex-1 w-full max-w-5xl mx-auto px-4 py-8">

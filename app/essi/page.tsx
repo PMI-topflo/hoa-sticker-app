@@ -1,3 +1,5 @@
+import SiteHeader from '@/components/SiteHeader'
+
 export default function PageEssi() {
   return (
     <main className="assoc-page">
@@ -8,16 +10,7 @@ export default function PageEssi() {
         <span className="assoc-topbar-r">305.900.5077</span>
       </div>
 
-      {/* Header */}
-      <div className="assoc-hero">
-        <div className="assoc-hero-inner">
-          <a href="/" className="assoc-logo"></a>
-          <div>
-            <h1 className="assoc-title">Essington Industrial Condominium, Inc.</h1>
-            <p className="assoc-code">Association Code: ESSI</p>
-          </div>
-        </div>
-      </div>
+      <SiteHeader subtitle="ASSOCIATION PORTAL · Essington Industrial Condominium, Inc." />
 
       {/* Quick Actions */}
       <section className="section">

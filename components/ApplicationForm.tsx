@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import SiteHeader from "@/components/SiteHeader";
 import { loadStripe } from "@stripe/stripe-js";
 import { createClient } from "@supabase/supabase-js";
 
@@ -595,6 +596,8 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
+    <>
+    <SiteHeader subtitle="TENANT APPLICATION PORTAL" />
     <div style={{ minHeight: "100vh", background: "#0d0d0d", fontFamily: "'DM Sans', system-ui, sans-serif", padding: "24px 16px" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap');
@@ -604,11 +607,7 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
 
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div style={{ textAlign: "center", marginBottom: 28 }}>
-        <div style={{ marginBottom: 14 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/pmi-icon.jpg" alt="PMI Top Florida Properties" style={{ height: 44, width: "auto", objectFit: "contain" }} />
-        </div>
-        <h1 style={{ color: "#fff", fontFamily: "'Fraunces', Georgia, serif", fontSize: 28, fontWeight: 300, margin: 0, letterSpacing: "-0.01em" }}>
+        <h1 style={{ color: "#fff", fontFamily: "'Fraunces', Georgia, serif", fontSize: 28, fontWeight: 300, margin: "0 0 14px", letterSpacing: "-0.01em" }}>
           {t.title}
         </h1>
 
@@ -885,5 +884,6 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
         © 2026 PMI Top Florida Properties · pmitop.com
       </div>
     </div>
+    </>
   );
 }

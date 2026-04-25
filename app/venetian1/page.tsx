@@ -1,3 +1,5 @@
+import SiteHeader from '@/components/SiteHeader'
+
 export default function PageVenetian1() {
   return (
     <main className="assoc-page">
@@ -8,16 +10,7 @@ export default function PageVenetian1() {
         <span className="assoc-topbar-r">305.900.5077</span>
       </div>
 
-      {/* Header */}
-      <div className="assoc-hero">
-        <div className="assoc-hero-inner">
-          <a href="/" className="assoc-logo"></a>
-          <div>
-            <h1 className="assoc-title">Venetian Park Condominium I Association, Inc.</h1>
-            <p className="assoc-code">Association Code: VPCI</p>
-          </div>
-        </div>
-      </div>
+      <SiteHeader subtitle="ASSOCIATION PORTAL · Venetian Park Condominium I Association, Inc." />
 
       {/* Quick Actions */}
       <section className="section">

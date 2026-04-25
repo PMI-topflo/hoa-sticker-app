@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import SiteHeader from '@/components/SiteHeader'
 
 export default async function MyAccountPage(props: {
   searchParams: Promise<{ id?: string; assoc?: string }>
@@ -45,16 +46,7 @@ export default async function MyAccountPage(props: {
         <span className="assoc-topbar-r">305.900.5077</span>
       </div>
 
-      {/* Header */}
-      <div className="assoc-hero">
-        <div className="assoc-hero-inner">
-          <a href="/" className="assoc-logo"></a>
-          <div>
-            <h1 className="assoc-title">My Account</h1>
-            <p className="assoc-code">{owner.association_name}</p>
-          </div>
-        </div>
-      </div>
+      <SiteHeader subtitle={`MY ACCOUNT · ${owner.association_name}`} />
 
       {/* Account summary */}
       <div className="section">

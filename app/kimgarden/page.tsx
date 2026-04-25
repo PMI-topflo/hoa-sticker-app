@@ -1,3 +1,5 @@
+import SiteHeader from '@/components/SiteHeader'
+
 export default function PageKimgarden() {
   return (
     <main className="assoc-page">
@@ -8,16 +10,7 @@ export default function PageKimgarden() {
         <span className="assoc-topbar-r">305.900.5077</span>
       </div>
 
-      {/* Header */}
-      <div className="assoc-hero">
-        <div className="assoc-hero-inner">
-          <a href="/" className="assoc-logo"></a>
-          <div>
-            <h1 className="assoc-title">Kimberly Garden Apartments Condominium, Inc.</h1>
-            <p className="assoc-code">Association Code: KGA</p>
-          </div>
-        </div>
-      </div>
+      <SiteHeader subtitle="ASSOCIATION PORTAL · Kimberly Garden Apartments Condominium, Inc." />
 
       {/* Quick Actions */}
       <section className="section">

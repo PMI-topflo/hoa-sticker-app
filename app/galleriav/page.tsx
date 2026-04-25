@@ -1,3 +1,5 @@
+import SiteHeader from '@/components/SiteHeader'
+
 export default function PageGalleriav() {
   return (
     <main className="assoc-page">
@@ -8,16 +10,7 @@ export default function PageGalleriav() {
         <span className="assoc-topbar-r">305.900.5077</span>
       </div>
 
-      {/* Header */}
-      <div className="assoc-hero">
-        <div className="assoc-hero-inner">
-          <a href="/" className="assoc-logo"></a>
-          <div>
-            <h1 className="assoc-title">Galleria Village Homeowners Association, Inc.</h1>
-            <p className="assoc-code">Association Code: GVH</p>
-          </div>
-        </div>
-      </div>
+      <SiteHeader subtitle="ASSOCIATION PORTAL · Galleria Village Homeowners Association, Inc." />
 
       {/* Quick Actions */}
       <section className="section">

@@ -1,3 +1,5 @@
+import SiteHeader from '@/components/SiteHeader'
+
 export default function PageFifth() {
   return (
     <main className="assoc-page">
@@ -8,16 +10,7 @@ export default function PageFifth() {
         <span className="assoc-topbar-r">305.900.5077</span>
       </div>
 
-      {/* Header */}
-      <div className="assoc-hero">
-        <div className="assoc-hero-inner">
-          <a href="/" className="assoc-logo"></a>
-          <div>
-            <h1 className="assoc-title">Fifth Miramar Condominium, Inc.</h1>
-            <p className="assoc-code">Association Code: FIFTH</p>
-          </div>
-        </div>
-      </div>
+      <SiteHeader subtitle="ASSOCIATION PORTAL · Fifth Miramar Condominium, Inc." />
 
       {/* Quick Actions */}
       <section className="section">
