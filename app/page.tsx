@@ -50,6 +50,8 @@ const T: Record<Lang, Translations> = {
       { key: 'agent',     icon: '🏢', title: 'Real Estate Agent',   desc: 'Tools for listings, buyers & estoppel — text us to begin' },
       { key: 'board',     icon: '👥', title: 'Board Member',         desc: 'Review invoices, approvals & association management' },
       { key: 'vendor',    icon: '🔧', title: 'Vendor / Contractor',  desc: 'Submit invoices, set up ACH & coordinate with our team' },
+      { key: 'buyer',     icon: '🏡', title: 'Buyer Applicant',       desc: 'Apply to purchase a unit in one of our communities' },
+      { key: 'title',     icon: '🏛️', title: 'Title Company',         desc: 'Estoppel requests, closing documents & transaction coordination' },
       { key: 'staff',     icon: '🔒', title: 'PMI Staff',            desc: 'Internal management dashboard' },
     ],
   },
@@ -68,6 +70,8 @@ const T: Record<Lang, Translations> = {
       { key: 'agent',     icon: '🏢', title: 'Agente de Bienes Raíces',   desc: 'Herramientas para propiedades, compradores y estoppel — escríbenos' },
       { key: 'board',     icon: '👥', title: 'Miembro de la Junta',       desc: 'Revisa facturas, aprobaciones y gestión de la asociación' },
       { key: 'vendor',    icon: '🔧', title: 'Proveedor / Contratista',   desc: 'Envía facturas, configura ACH y coordina con nuestro equipo' },
+      { key: 'buyer',     icon: '🏡', title: 'Comprador',                 desc: 'Solicita la compra de una unidad en nuestras comunidades' },
+      { key: 'title',     icon: '🏛️', title: 'Compañía de Título',        desc: 'Solicitudes de estoppel, documentos de cierre y coordinación' },
       { key: 'staff',     icon: '🔒', title: 'Personal PMI',              desc: 'Panel de administración interno' },
     ],
   },
@@ -86,6 +90,8 @@ const T: Record<Lang, Translations> = {
       { key: 'agent',     icon: '🏢', title: 'Corretor de Imóveis',       desc: 'Ferramentas para imóveis, compradores e estoppel — envie mensagem' },
       { key: 'board',     icon: '👥', title: 'Membro da Diretoria',       desc: 'Revise faturas, aprovações e gestão da associação' },
       { key: 'vendor',    icon: '🔧', title: 'Fornecedor / Contratado',   desc: 'Envie faturas, configure ACH e coordene com nossa equipe' },
+      { key: 'buyer',     icon: '🏡', title: 'Comprador',                 desc: 'Solicite a compra de uma unidade em nossas comunidades' },
+      { key: 'title',     icon: '🏛️', title: 'Empresa de Título',         desc: 'Solicitações de estoppel, documentos de fechamento e coordenação' },
       { key: 'staff',     icon: '🔒', title: 'Equipe PMI',                desc: 'Painel de gerenciamento interno' },
     ],
   },
@@ -104,6 +110,8 @@ const T: Record<Lang, Translations> = {
       { key: 'agent',     icon: '🏢', title: 'Agent Immobilier',          desc: 'Outils pour annonces, acheteurs et estoppel — écrivez-nous' },
       { key: 'board',     icon: '👥', title: 'Membre du Conseil',         desc: "Consultez les factures, approbations et gestion de l'association" },
       { key: 'vendor',    icon: '🔧', title: 'Fournisseur / Entrepreneur', desc: 'Soumettez des factures, configurez ACH et coordonnez avec nous' },
+      { key: 'buyer',     icon: '🏡', title: 'Acheteur',                  desc: "Demandez l'achat d'une unité dans nos communautés" },
+      { key: 'title',     icon: '🏛️', title: 'Société de Titre',          desc: "Demandes d'estoppel, documents de clôture et coordination" },
       { key: 'staff',     icon: '🔒', title: 'Personnel PMI',             desc: 'Tableau de bord de gestion interne' },
     ],
   },
@@ -122,6 +130,8 @@ const T: Record<Lang, Translations> = {
       { key: 'agent',     icon: '🏢', title: 'סוכן נדל"ן',         desc: 'כלים עבור רישומים, קונים ו-estoppel — שלח הודעה להתחלה' },
       { key: 'board',     icon: '👥', title: 'חבר ועד',            desc: 'סקור חשבוניות, אישורים וניהול העמותה' },
       { key: 'vendor',    icon: '🔧', title: 'ספק / קבלן',         desc: 'שלח חשבוניות, הגדר ACH ותאם עם הצוות שלנו' },
+      { key: 'buyer',     icon: '🏡', title: 'קונה דירה',          desc: 'הגש מועמדות לרכישת דירה בקהילות שלנו' },
+      { key: 'title',     icon: '🏛️', title: 'חברת טייטל',         desc: 'בקשות estoppel, מסמכי סגירה ותיאום עסקאות' },
       { key: 'staff',     icon: '🔒', title: 'צוות PMI',           desc: 'לוח הניהול הפנימי' },
     ],
   },
@@ -140,6 +150,8 @@ const T: Record<Lang, Translations> = {
       { key: 'agent',     icon: '🏢', title: 'Агент по недвижимости',     desc: 'Инструменты для объявлений, покупателей и estoppel — напишите нам' },
       { key: 'board',     icon: '👥', title: 'Член правления',            desc: 'Просмотр счетов, одобрений и управления ассоциацией' },
       { key: 'vendor',    icon: '🔧', title: 'Поставщик / Подрядчик',    desc: 'Отправьте счета, настройте ACH и координируйте с нашей командой' },
+      { key: 'buyer',     icon: '🏡', title: 'Покупатель',                desc: 'Подайте заявку на покупку квартиры в наших комплексах' },
+      { key: 'title',     icon: '🏛️', title: 'Титульная Компания',        desc: 'Запросы estoppel, документы закрытия и координация сделок' },
       { key: 'staff',     icon: '🔒', title: 'Персонал PMI',              desc: 'Внутренняя панель управления' },
     ],
   },
@@ -193,6 +205,8 @@ export default function Home() {
     if (key === 'agent')     { window.open('https://wa.me/17866863223', '_blank'); return }
     if (key === 'board')     { window.open('https://pmitfp.cincwebaxis.com/', '_blank'); return }
     if (key === 'vendor')    { window.open('https://wa.me/17866863223', '_blank'); return }
+    if (key === 'buyer')     { router.push('/apply'); return }
+    if (key === 'title')     { window.open('https://secure.condocerts.com/resale/', '_blank'); return }
     if (key === 'staff')     { router.push('/admin'); return }
   }
 
