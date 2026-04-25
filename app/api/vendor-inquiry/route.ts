@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { sendEmail } from '@/lib/gmail'
 
 export async function POST(req: NextRequest) {
   const { companyName, contactName, email, phone, association } = await req.json()
@@ -6,8 +7,6 @@ export async function POST(req: NextRequest) {
   if (!companyName || !email) {
     return NextResponse.json({ ok: false, error: 'Missing required fields' }, { status: 400 })
   }
-
-  const base = process.env.NEXT_PUBLIC_APP_URL
 
   // Email to vendor
   const vendorHtml = `
@@ -63,26 +62,34 @@ export async function POST(req: NextRequest) {
     <p style="font-family:Arial,sans-serif;font-size:12px;color:#888;margin-top:16px">Submitted via MAIA homepage vendor inquiry form.</p>
   `
 
-  await Promise.all([
-    fetch(`${base}/api/send-email`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        to: email,
-        subject: `Welcome to PMI Top Florida Properties — Next Steps for ${companyName}`,
-        html: vendorHtml,
-      }),
+  const missingCreds = !process.env.GMAIL_CLIENT_ID || !process.env.GMAIL_CLIENT_SECRET || !process.env.GMAIL_REFRESH_TOKEN
+
+  if (missingCreds) {
+    console.warn('[vendor-inquiry] Gmail credentials not configured — skipping email send', { companyName, email })
+    return NextResponse.json({ ok: true, skipped: true })
+  }
+
+  const results = await Promise.allSettled([
+    sendEmail({
+      to: email,
+      subject: `Welcome to PMI Top Florida Properties — Next Steps for ${companyName}`,
+      html: vendorHtml,
     }),
-    fetch(`${base}/api/send-email`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        to: 'maia@pmitop.com',
-        subject: `[Vendor Inquiry] ${companyName} — ${association || 'No association'}`,
-        html: internalHtml,
-      }),
+    sendEmail({
+      to: 'maia@pmitop.com',
+      subject: `[Vendor Inquiry] ${companyName} — ${association || 'No association'}`,
+      html: internalHtml,
     }),
   ])
+
+  results.forEach((r, i) => {
+    const label = i === 0 ? `vendor (${email})` : 'internal (maia@pmitop.com)'
+    if (r.status === 'fulfilled') {
+      console.log(`[vendor-inquiry] Email sent → ${label}`)
+    } else {
+      console.error(`[vendor-inquiry] Email failed → ${label}:`, r.reason)
+    }
+  })
 
   return NextResponse.json({ ok: true })
 }

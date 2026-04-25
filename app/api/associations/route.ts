@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 export async function GET() {
   const { data, error } = await supabaseAdmin
     .from('associations')
-    .select('association_code, association_name')
+    .select('association_code, association_name, principal_address, city, state, zip')
     .eq('active', true)
     .order('association_name')
 
