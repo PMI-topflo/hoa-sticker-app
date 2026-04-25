@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 
@@ -23,33 +23,7 @@ const LANG_TABS: { code: Lang; label: string }[] = [
   { code: 'ru', label: 'RU' },
 ]
 
-const ASSOCIATIONS = [
-  { name: 'Abbott Avenue',       slug: 'abbott' },
-  { name: 'Brook',               slug: 'brook' },
-  { name: 'Crystal Heights',     slug: 'crystalh' },
-  { name: 'Del Vista',           slug: 'delvista' },
-  { name: 'Essi',                slug: 'essi' },
-  { name: 'Fifth',               slug: 'fifth' },
-  { name: 'Galleria V',          slug: 'galleriav' },
-  { name: 'Gold Key',            slug: 'goldkey' },
-  { name: 'Island House',        slug: 'islandhouse' },
-  { name: 'Kane',                slug: 'kane' },
-  { name: 'Kim Garden',          slug: 'kimgarden' },
-  { name: 'La Farms',            slug: 'lafarms' },
-  { name: 'Lakeview',            slug: 'lakeview' },
-  { name: 'Maco',                slug: 'maco' },
-  { name: 'Manors XI',           slug: 'manorsxi' },
-  { name: 'One Bay',             slug: 'onebay' },
-  { name: 'Parcview',            slug: 'parcview' },
-  { name: 'Serenity IV',         slug: 'serenityiv' },
-  { name: 'Shoreland',           slug: 'shoreland' },
-  { name: 'Venetian 1',          slug: 'venetian1' },
-  { name: 'Venetian 2',          slug: 'venetian2' },
-  { name: 'Venetian 5',          slug: 'venetian5' },
-  { name: 'Venetian Recreation', slug: 'venetianrec' },
-  { name: 'Wedgewood 57',        slug: 'wedgewood57' },
-  { name: 'Wedgewood Ansin',     slug: 'wedgewoodansin' },
-]
+interface AssocOption { association_code: string; association_name: string }
 
 // ── Translations ─────────────────────────────────────────────────────────────
 
@@ -313,8 +287,17 @@ export default function Home() {
   const [vdPhone,   setVdPhone]   = useState('')
   const [vdAssoc,   setVdAssoc]   = useState('')
 
-  const t       = COPY[lang]
-  const isRtl   = lang === 'he'
+  // Associations — fetched dynamically from Supabase via API
+  const [associations, setAssociations] = useState<AssocOption[]>([])
+  useEffect(() => {
+    fetch('/api/associations')
+      .then(r => r.json())
+      .then(setAssociations)
+      .catch(() => {/* silently ignore — dropdowns will just be empty */})
+  }, [])
+
+  const t     = COPY[lang]
+  const isRtl = lang === 'he'
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
@@ -396,8 +379,12 @@ export default function Home() {
     <div>
       <label className={labelCls}>{label}</label>
       <select value={value} onChange={e => onChange(e.target.value)} className={inputCls}>
-        <option value="">{t.selectAssoc}</option>
-        {ASSOCIATIONS.map(a => <option key={a.slug} value={a.name}>{a.name}</option>)}
+        <option value="">{associations.length === 0 ? '— Loading… —' : t.selectAssoc}</option>
+        {associations.map(a => (
+          <option key={a.association_code} value={a.association_name}>
+            {a.association_name}
+          </option>
+        ))}
       </select>
     </div>
   )
