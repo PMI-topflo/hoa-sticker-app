@@ -604,9 +604,9 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
 
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div style={{ textAlign: "center", marginBottom: 28 }}>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "rgba(242,106,27,0.12)", borderRadius: 40, padding: "7px 18px", marginBottom: 14, border: "1px solid rgba(242,106,27,0.25)" }}>
-          <span style={{ fontSize: 16 }}>🏠</span>
-          <span style={{ color: "#f26a1b", fontWeight: 600, fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", fontFamily: "monospace" }}>PMI Top Florida Properties</span>
+        <div style={{ marginBottom: 14 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/pmi-logo.jpg" alt="PMI Top Florida Properties" style={{ height: 44, width: "auto", objectFit: "contain" }} />
         </div>
         <h1 style={{ color: "#fff", fontFamily: "'Fraunces', Georgia, serif", fontSize: 28, fontWeight: 300, margin: 0, letterSpacing: "-0.01em" }}>
           {t.title}

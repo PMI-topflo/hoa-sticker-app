@@ -780,7 +780,7 @@ export default function MaiaWidget({ embedded = false }: { embedded?: boolean })
       >
         {open
           ? <span style={{ color: '#fff', fontSize: '1rem', fontFamily: 'var(--font-mono)' }}>✕</span>
-          : <Image src="/pmi-logo.png" alt="PMI" width={56} height={56} style={{ objectFit: 'cover', borderRadius: '50%' }} />
+          : <Image src="/pmi-icon.jpg" alt="PMI" width={56} height={56} style={{ objectFit: 'cover', borderRadius: '50%' }} />
         }
       </button>
     </>

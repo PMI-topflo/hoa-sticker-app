@@ -413,7 +413,7 @@ export default function Home() {
           {/* Logo */}
           <a href="/" className="flex-shrink-0">
             <Image
-              src="/pmi-logo.png"
+              src="/pmi-logo.jpg"
               alt="PMI Top Florida Properties"
               width={160}
               height={56}
