@@ -4,8 +4,8 @@ import { sendEmail } from '@/lib/gmail'
 export async function POST(req: NextRequest) {
   const { to, subject, body, html } = await req.json()
 
-  if (!process.env.GMAIL_CLIENT_ID || !process.env.GMAIL_CLIENT_SECRET || !process.env.GMAIL_REFRESH_TOKEN) {
-    console.warn('[EMAIL] Gmail credentials not configured. Skipping send.', { to, subject })
+  if (!process.env.RESEND_API_KEY && (!process.env.GMAIL_CLIENT_ID || !process.env.GMAIL_CLIENT_SECRET || !process.env.GMAIL_REFRESH_TOKEN)) {
+    console.warn('[EMAIL] No email provider configured. Skipping send.', { to, subject })
     return NextResponse.json({ ok: true, skipped: true })
   }
 

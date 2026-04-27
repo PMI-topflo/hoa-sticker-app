@@ -1,16 +1,53 @@
-// Gmail API via OAuth2 — no external packages, pure fetch
+// Email sender — Resend primary, Gmail OAuth fallback
+// All outbound email goes through sendEmail(); provider is chosen at runtime.
+
+const FROM = 'MAIA <maia@pmitop.com>'
+
+// ── Normalise recipients ─────────────────────────────────────────────────────
+
+function toAddresses(to: string | string[]): string[] {
+  const raw = Array.isArray(to) ? to : [to]
+  return raw.flatMap(t => t.split(',').map(s => s.trim())).filter(Boolean)
+}
+
+// ── Resend ───────────────────────────────────────────────────────────────────
+
+async function sendViaResend({
+  to,
+  subject,
+  html,
+}: {
+  to: string[]
+  subject: string
+  html: string
+}): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey) throw new Error('[Resend] RESEND_API_KEY not set')
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ from: FROM, to, subject, html }),
+  })
+
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`[Resend] Send failed (${res.status}): ${err}`)
+  }
+}
+
+// ── Gmail OAuth fallback ─────────────────────────────────────────────────────
 
 const TOKEN_URL = 'https://oauth2.googleapis.com/token'
 const SEND_URL  = 'https://gmail.googleapis.com/gmail/v1/users/me/messages/send'
-const FROM      = 'MAIA <maia@pmitop.com>'
 
-// Module-level cache — survives across requests within the same serverless instance
 let tokenCache: { value: string; expiresAt: number } | null = null
 
 async function getAccessToken(): Promise<string> {
-  if (tokenCache && Date.now() < tokenCache.expiresAt - 60_000) {
-    return tokenCache.value
-  }
+  if (tokenCache && Date.now() < tokenCache.expiresAt - 60_000) return tokenCache.value
 
   const res = await fetch(TOKEN_URL, {
     method: 'POST',
@@ -23,31 +60,14 @@ async function getAccessToken(): Promise<string> {
     }),
   })
 
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`[Gmail] Token refresh failed: ${text}`)
-  }
+  if (!res.ok) throw new Error(`[Gmail] Token refresh failed: ${await res.text()}`)
 
   const json = await res.json() as { access_token: string; expires_in: number }
   tokenCache = { value: json.access_token, expiresAt: Date.now() + json.expires_in * 1000 }
   return tokenCache.value
 }
 
-// Normalize to a flat array, handling comma-separated strings from the webhook
-function toAddresses(to: string | string[]): string[] {
-  const raw = Array.isArray(to) ? to : [to]
-  return raw.flatMap(t => t.split(',').map(s => s.trim())).filter(Boolean)
-}
-
-function buildRaw({
-  to,
-  subject,
-  html,
-}: {
-  to: string[]
-  subject: string
-  html: string
-}): string {
+function buildRaw({ to, subject, html }: { to: string[]; subject: string; html: string }): string {
   const mime = [
     `From: ${FROM}`,
     `To: ${to.join(', ')}`,
@@ -59,12 +79,24 @@ function buildRaw({
     Buffer.from(html, 'utf-8').toString('base64'),
   ].join('\r\n')
 
-  return Buffer.from(mime, 'utf-8')
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '')
+  return Buffer.from(mime, 'utf-8').toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
+
+async function sendViaGmail({ to, subject, html }: { to: string[]; subject: string; html: string }): Promise<void> {
+  const hasGmail = process.env.GMAIL_CLIENT_ID && process.env.GMAIL_CLIENT_SECRET && process.env.GMAIL_REFRESH_TOKEN
+  if (!hasGmail) throw new Error('[Gmail] Credentials not configured')
+
+  const accessToken = await getAccessToken()
+  const res = await fetch(SEND_URL, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ raw: buildRaw({ to, subject, html }) }),
+  })
+
+  if (!res.ok) throw new Error(`[Gmail] Send failed: ${await res.text()}`)
+}
+
+// ── Public API ───────────────────────────────────────────────────────────────
 
 export async function sendEmail({
   to,
@@ -78,23 +110,14 @@ export async function sendEmail({
   text?: string
 }): Promise<void> {
   const addresses = toAddresses(to)
-  if (addresses.length === 0) throw new Error('[Gmail] No recipients provided')
+  if (addresses.length === 0) throw new Error('[Email] No recipients provided')
 
   const body = html ?? `<pre style="font-family:sans-serif;white-space:pre-wrap">${text ?? ''}</pre>`
-  const accessToken = await getAccessToken()
-  const raw = buildRaw({ to: addresses, subject, html: body })
 
-  const res = await fetch(SEND_URL, {
-    method: 'POST',
-    headers: {
-      Authorization:  `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ raw }),
-  })
-
-  if (!res.ok) {
-    const err = await res.text()
-    throw new Error(`[Gmail] Send failed: ${err}`)
+  if (process.env.RESEND_API_KEY) {
+    await sendViaResend({ to: addresses, subject, html: body })
+    return
   }
+
+  await sendViaGmail({ to: addresses, subject, html: body })
 }

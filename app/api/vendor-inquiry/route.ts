@@ -62,10 +62,10 @@ export async function POST(req: NextRequest) {
     <p style="font-family:Arial,sans-serif;font-size:12px;color:#888;margin-top:16px">Submitted via MAIA homepage vendor inquiry form.</p>
   `
 
-  const missingCreds = !process.env.GMAIL_CLIENT_ID || !process.env.GMAIL_CLIENT_SECRET || !process.env.GMAIL_REFRESH_TOKEN
+  const hasProvider = process.env.RESEND_API_KEY || (process.env.GMAIL_CLIENT_ID && process.env.GMAIL_CLIENT_SECRET && process.env.GMAIL_REFRESH_TOKEN)
 
-  if (missingCreds) {
-    console.warn('[vendor-inquiry] Gmail credentials not configured — skipping email send', { companyName, email })
+  if (!hasProvider) {
+    console.warn('[vendor-inquiry] No email provider configured — skipping email send', { companyName, email })
     return NextResponse.json({ ok: true, skipped: true })
   }
 
