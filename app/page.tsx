@@ -288,10 +288,12 @@ export default function Home() {
   const [savedPersona, setSavedPersona] = useState<MatchedRole | null>(null)
 
   // Homeowner form
-  const [hwFirst, setHwFirst] = useState('')
-  const [hwLast,  setHwLast]  = useState('')
-  const [hwEmail, setHwEmail] = useState('')
-  const [hwPhone, setHwPhone] = useState('')
+  const [hwFirst,   setHwFirst]   = useState('')
+  const [hwLast,    setHwLast]    = useState('')
+  const [hwEmail,   setHwEmail]   = useState('')
+  const [hwPhone,   setHwPhone]   = useState('')
+  const [hwAddress, setHwAddress] = useState('')
+  const [hwNudge,   setHwNudge]   = useState(false)
 
   // Agent form
   const [agName,    setAgName]    = useState('')
@@ -370,7 +372,12 @@ export default function Home() {
   }
 
   async function handleHomeownerLookup(e: React.FormEvent) {
-    e.preventDefault(); setBusy(true)
+    e.preventDefault()
+    if (!hwEmail.trim() && !hwPhone.trim() && !hwAddress.trim()) {
+      setHwNudge(true)
+      return
+    }
+    setBusy(true)
     try {
       const res  = await fetch('/api/homeowner-lookup', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -710,13 +717,47 @@ export default function Home() {
                     <BackBtn />
                     <h2 className={`text-base font-light text-white mb-1 [font-family:var(--font-display)] ${isRtl ? 'text-right' : ''}`}>{t.lookupTitle}</h2>
                     <p className={`text-sm text-[#9ca3af] mb-4 ${isRtl ? 'text-right' : ''}`}>{t.lookupSubtitle}</p>
+
+                    {/* MAIA nudge bubble */}
+                    {hwNudge && (
+                      <div className={`flex gap-2.5 mb-4 ${isRtl ? 'flex-row-reverse' : ''}`}>
+                        <div className="flex-shrink-0 w-7 h-7 rounded-full overflow-hidden mt-0.5">
+                          <Image src="/pmi-icon.jpg" alt="MAIA" width={28} height={28} className="object-cover" />
+                        </div>
+                        <div
+                          className="flex-1 rounded-2xl px-4 py-3 text-[0.82rem] text-white leading-relaxed"
+                          style={{
+                            borderTopLeftRadius: isRtl ? undefined : '4px',
+                            borderTopRightRadius: isRtl ? '4px' : undefined,
+                            background: 'rgba(242,106,27,0.10)',
+                            border: '1px solid rgba(242,106,27,0.22)',
+                          }}
+                        >
+                          I&apos;d love to help you! To find your account I&apos;ll need a bit more information. Could you also provide your email address, phone number, or property address? The more you share, the faster I can find you.
+                        </div>
+                      </div>
+                    )}
+
                     <form onSubmit={handleHomeownerLookup} className="space-y-3">
                       <div className="grid grid-cols-2 gap-3">
                         <div><label className={labelCls}>{t.firstName}</label><input className={inputCls} value={hwFirst} onChange={e => setHwFirst(e.target.value)} dir="ltr" /></div>
                         <div><label className={labelCls}>{t.lastName}</label><input className={inputCls} value={hwLast} onChange={e => setHwLast(e.target.value)} dir="ltr" /></div>
                       </div>
-                      <div><label className={labelCls}>{t.email}</label><input type="email" className={inputCls} value={hwEmail} onChange={e => setHwEmail(e.target.value)} dir="ltr" /></div>
-                      <div><label className={labelCls}>{t.phone}</label><input type="tel" className={inputCls} value={hwPhone} onChange={e => setHwPhone(e.target.value)} dir="ltr" /></div>
+                      <div>
+                        <label className={labelCls}>{t.email}</label>
+                        <input type="email" className={inputCls} value={hwEmail} onChange={e => { setHwEmail(e.target.value); if (e.target.value) setHwNudge(false) }} dir="ltr" />
+                        <p className="mt-1 text-[0.62rem] text-[#555] leading-snug">The email you used when signing your lease or HOA documents</p>
+                      </div>
+                      <div>
+                        <label className={labelCls}>{t.phone}</label>
+                        <input type="tel" className={inputCls} value={hwPhone} onChange={e => { setHwPhone(e.target.value); if (e.target.value) setHwNudge(false) }} dir="ltr" />
+                        <p className="mt-1 text-[0.62rem] text-[#555] leading-snug">The phone number on file with your association</p>
+                      </div>
+                      <div>
+                        <label className={labelCls}>Property Address</label>
+                        <input className={inputCls} value={hwAddress} onChange={e => { setHwAddress(e.target.value); if (e.target.value) setHwNudge(false) }} placeholder="e.g. 203 · 1234 Sunset Blvd" dir="ltr" />
+                        <p className="mt-1 text-[0.62rem] text-[#555] leading-snug">Your unit address including unit number</p>
+                      </div>
                       <OrangeBtn label={busy ? t.lookupBusy : t.lookupBtn} disabled={busy} />
                     </form>
                   </div>
