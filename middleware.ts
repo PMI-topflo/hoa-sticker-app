@@ -8,7 +8,7 @@ const PROTECTED: Record<string, { persona: 'owner' | 'board' | 'staff'; loginPat
   '/admin':      { persona: 'staff', loginPath: '/admin/login' },
 }
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   // Staff login page is always public — never intercept it or an infinite loop results
@@ -21,7 +21,7 @@ export function middleware(req: NextRequest) {
   const [, route] = match
 
   const token   = req.cookies.get(SESSION_COOKIE)?.value
-  const session = token ? verifySession(token) : null
+  const session = token ? await verifySession(token) : null
 
   if (!session) {
     const dest = req.nextUrl.clone()

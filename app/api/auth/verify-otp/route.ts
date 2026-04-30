@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
   }
 
   const session  = makeSession({ userId, persona: sessionPersona, associationCode: assocCode, displayName, contactName })
-  const token    = signSession(session)
+  const token    = await signSession(session)
 
   logLogin({ event: 'otp_verified', identifier: identifier.trim(), persona: sessionPersona, association_code: assocCode || null, association_name: displayName || null, method: otp.method, ip_address: ip, user_agent: ua, success: true, role_data: role })
 

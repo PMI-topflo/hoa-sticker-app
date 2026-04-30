@@ -5,7 +5,7 @@ export async function GET(req: NextRequest) {
   const token = req.cookies.get(SESSION_COOKIE)?.value
   if (!token) return NextResponse.json({ valid: false }, { status: 401 })
 
-  const session = verifySession(token)
+  const session = await verifySession(token)
   if (!session) return NextResponse.json({ valid: false }, { status: 401 })
 
   return NextResponse.json({ valid: true, session })

@@ -23,7 +23,7 @@ export default function AdminLoginPage() {
       .then(r => r.json())
       .then((d: { valid: boolean; session?: { persona: string } }) => {
         if (d.valid && d.session?.persona === 'staff') {
-          window.location.href = '/admin'
+          window.location.replace('/admin')
         }
       })
       .catch(() => {})
@@ -65,7 +65,7 @@ export default function AdminLoginPage() {
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? 'Incorrect code'); return }
       setStep('success')
-      setTimeout(() => { window.location.href = '/admin' }, 900)
+      setTimeout(() => { window.location.replace('/admin') }, 900)
     } catch { setError('Network error — please try again') } finally { setBusy(false) }
   }
 
