@@ -456,8 +456,6 @@ export default function Home() {
       .then((data: { valid: boolean; session?: { persona: string } }) => {
         if (!data.valid) return
         setHasSession(true)
-        // Auto-redirect when arriving via middleware ?return= redirect
-        if (rUrl) { window.location.href = rUrl; return }
         // Sync sessionStorage if cookie exists but sessionStorage was cleared (e.g. new tab)
         if (!sp && data.session?.persona === 'staff') {
           const role: MatchedRole = { type: 'staff' }
@@ -465,16 +463,24 @@ export default function Home() {
           try { sessionStorage.setItem('maia_persona', JSON.stringify(role)) } catch { /* ignore */ }
         }
       })
-      .catch(() => { /* network error — ignore, will fall through to OTP */ })
+      .catch(() => { /* network error — fall through to OTP */ })
   }, [])
 
-  // Opening animation sequence
+  // Opening animation sequence — plays once per session, skipped on reload/redirect
   useEffect(() => {
+    const S = 'the property management people'
+    try {
+      if (sessionStorage.getItem('maia_animation_played')) {
+        setPhase(2); setSloganIdx(S.length); return
+      }
+    } catch { /* ignore */ }
     setPhase(1)
-    const SLOGAN = 'the property management people'
     let i = 0
-    const typeId = setInterval(() => { setSloganIdx(++i); if (i >= SLOGAN.length) clearInterval(typeId) }, 55)
-    const phaseId = setTimeout(() => setPhase(2), 2700)
+    const typeId = setInterval(() => { setSloganIdx(++i); if (i >= S.length) clearInterval(typeId) }, 55)
+    const phaseId = setTimeout(() => {
+      setPhase(2)
+      try { sessionStorage.setItem('maia_animation_played', '1') } catch { /* ignore */ }
+    }, 2700)
     return () => { clearInterval(typeId); clearTimeout(phaseId) }
   }, [])
 
