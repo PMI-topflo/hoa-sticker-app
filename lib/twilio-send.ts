@@ -30,3 +30,19 @@ export async function sendWhatsApp(to: string, body: string): Promise<boolean> {
     return false
   }
 }
+
+export async function sendWhatsAppOTP(to: string, otpCode: string): Promise<boolean> {
+  const templateSid = process.env.TWILIO_OTP_TEMPLATE_SID
+  if (!templateSid) throw new Error('TWILIO_OTP_TEMPLATE_SID not set')
+
+  const waFrom = `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER ?? process.env.TWILIO_PHONE_NUMBER}`
+  const waTo   = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`
+
+  await client.messages.create({
+    from:             waFrom,
+    to:               waTo,
+    contentSid:       templateSid,
+    contentVariables: JSON.stringify({ '1': otpCode }),
+  })
+  return true
+}

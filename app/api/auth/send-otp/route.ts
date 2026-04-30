@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { sendSMS, sendWhatsApp } from '@/lib/twilio-send'
+import { sendSMS, sendWhatsApp, sendWhatsAppOTP } from '@/lib/twilio-send'
 import { sendEmail } from '@/lib/gmail'
 import { checkRateLimit } from '@/lib/rate-limit'
 
@@ -47,7 +47,12 @@ export async function POST(req: NextRequest) {
   if (method === 'sms') {
     sent = await sendSMS(identifier.trim(), msgBody)
   } else if (method === 'whatsapp') {
-    sent = await sendWhatsApp(identifier.trim(), msgBody)
+    try {
+      sent = await sendWhatsAppOTP(identifier.trim(), code)
+    } catch (err) {
+      console.error('[send-otp] WhatsApp template failed, falling back to SMS:', err)
+      sent = await sendSMS(identifier.trim(), msgBody)
+    }
   } else if (method === 'email') {
     try {
       await sendEmail({
