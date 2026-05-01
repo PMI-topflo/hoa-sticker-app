@@ -820,7 +820,7 @@ ${aiText.split('\n').map(line => `<p style="margin:0 0 12px">${line}</p>`).join(
       .update({
         response:    aiText,
         reply_sent:  true,
-        status:      'completed',
+        status:      'sent',
         updated_at:  new Date().toISOString(),
       })
       .eq('id', convRow.id)

@@ -117,10 +117,14 @@ function channelIcon(channel: string | null) {
 function statusBadge(status: string | null) {
   const s = status ?? 'open'
   const map: Record<string, string> = {
-    open:      'bg-amber-100 text-amber-800',
-    resolved:  'bg-green-100 text-green-800',
-    escalated: 'bg-red-100 text-red-800',
-    closed:    'bg-gray-100 text-gray-600',
+    open:       'bg-amber-100 text-amber-800',
+    processing: 'bg-blue-100 text-blue-800',
+    resolved:   'bg-green-100 text-green-800',
+    completed:  'bg-green-100 text-green-800',
+    sent:       'bg-green-100 text-green-800',
+    escalated:  'bg-red-100 text-red-800',
+    failed:     'bg-red-100 text-red-800',
+    closed:     'bg-gray-100 text-gray-600',
   }
   return (
     <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold uppercase ${map[s] ?? map.open}`}>
@@ -243,11 +247,27 @@ function ConversationsTab({ conversations, staff }: { conversations: Conversatio
                   </div>
                   <p className="text-xs mt-1 truncate">
                     {(() => {
-                      const preview =
-                        c.summary?.trim() ||
-                        c.message?.trim() ||
-                        c.messages?.find(m => m.role === 'user')?.content?.trim() ||
-                        null
+                      const msg = c.message?.trim()
+                      const res = c.response?.trim()
+                      const ch  = c.channel
+                      let preview: string | null = null
+
+                      if (ch === 'whatsapp' || ch === 'sms') {
+                        const inPart  = msg ? `IN: ${msg.slice(0, 80)}`  : null
+                        const outPart = res ? `OUT: ${res.slice(0, 80)}` : null
+                        preview = [inPart, outPart].filter(Boolean).join(' | ') || null
+                      } else if (ch === 'email') {
+                        const subj = c.subject ? `Subject: ${c.subject}` : null
+                        const body = msg ? msg.slice(0, 80) : null
+                        preview = [subj, body].filter(Boolean).join(' | ') || null
+                      } else {
+                        preview =
+                          msg?.slice(0, 100) ||
+                          c.summary?.trim()  ||
+                          c.messages?.find(m => m.role === 'user')?.content?.trim()?.slice(0, 100) ||
+                          null
+                      }
+
                       return preview
                         ? <span className="text-gray-500">{preview}</span>
                         : <span className="text-gray-300 italic">No message content available</span>
@@ -275,6 +295,25 @@ function ConversationsTab({ conversations, staff }: { conversations: Conversatio
                   <div><span className="text-gray-400">Created:</span> {fmtDate(c.created_at)}</div>
                   <div><span className="text-gray-400">ID:</span> <span className="font-mono">{c.id.slice(0, 12)}…</span></div>
                 </div>
+
+                {(c.channel === 'email' || c.channel === 'whatsapp' || c.channel === 'sms') && (
+                  <div className="space-y-2 mt-3 pt-3 border-t border-gray-100 text-xs">
+                    <div>
+                      <div className="text-gray-400 font-semibold mb-1">Message</div>
+                      {c.message?.trim()
+                        ? <div className="bg-white border border-gray-100 rounded px-3 py-2 text-gray-700 whitespace-pre-wrap max-h-32 overflow-y-auto">{c.message}</div>
+                        : <div className="text-gray-300 italic">No message content available</div>
+                      }
+                    </div>
+                    <div>
+                      <div className="text-gray-400 font-semibold mb-1">Response</div>
+                      {c.response?.trim()
+                        ? <div className="bg-white border border-gray-100 rounded px-3 py-2 text-gray-700 whitespace-pre-wrap max-h-32 overflow-y-auto">{c.response}</div>
+                        : <div className="text-gray-300 italic">No response recorded</div>
+                      }
+                    </div>
+                  </div>
+                )}
 
                 {c.messages && c.messages.length > 0 && (
                   <div className="max-h-64 overflow-y-auto space-y-1.5 mt-2">
