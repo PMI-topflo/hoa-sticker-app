@@ -5,7 +5,7 @@ import SiteHeader from "@/components/SiteHeader";
 import { loadStripe } from "@stripe/stripe-js";
 import { createClient } from "@supabase/supabase-js";
 
-// ── Supabase client (public/read-only anon key) ──────────────────────────────
+// ── Supabase client — used only for Storage uploads (anon key) ────────────────
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -287,10 +287,144 @@ const translations = {
     payingNote: "Redirection vers le paiement sécurisé…",
     uploadError: "Échec du téléchargement — veuillez réessayer.",
   },
+  he: {
+    title: "בקשת מגורים",
+    subtitle: "PMI Top Florida Properties",
+    steps: ["סוג", "מגישים", "מסמכים", "תשלום"],
+    selectAssociation: "בחר עמותה",
+    associationPlaceholder: "בחר את העמותה שלך…",
+    loadingAssociations: "טוען עמותות…",
+    applicantType: "סוג בקשה",
+    individual: "יחיד",
+    individualDesc: "מגיש יחיד",
+    couple: "זוג נשוי",
+    coupleDesc: "בקשה משותפת עם בן/בת הזוג",
+    additionalResident: "דייר נוסף",
+    additionalResidentDesc: "דייר נוסף על בקשה קיימת",
+    commercial: "ישות מסחרית",
+    commercialDesc: "עסק / מגיש תאגידי",
+    marriageCertUpload: "תעודת נישואין",
+    marriageCertNote: "העלה תעודת נישואין לתעריף זוגי ($150). ללא תעודה, כל מגיש ישלם $100.",
+    hasCert: "כן — העלה תעודה",
+    noCert: "ללא תעודה — חיוב נפרד ($100 לכל אחד)",
+    applicant: "מגיש",
+    firstName: "שם פרטי",
+    lastName: "שם משפחה",
+    dob: "תאריך לידה",
+    email: "כתובת אימייל",
+    phone: "מספר טלפון",
+    currentAddress: "כתובת נוכחית",
+    ssn: "מספר ביטוח לאומי (או מספר דרכון למגישים בינלאומיים)",
+    unitApplying: "יחידה מבוקשת",
+    moveInDate: "תאריך כניסה מבוקש",
+    entityName: "שם הישות (כפי שמופיע ב-Sunbiz)",
+    sunbizId: "מספר רישום Sunbiz",
+    principals: "בעלי עניין רשומים",
+    addPrincipal: "+ הוסף בעל עניין",
+    principalName: "שם בעל עניין",
+    principalDOB: "תאריך לידה",
+    documents: "מסמכים נדרשים",
+    govId: "תעודת זהות ממשלתית",
+    proofIncome: "אישור הכנסה",
+    marriageCert: "תעודת נישואין",
+    uploadFile: "לחץ להעלאה או גרור קובץ",
+    uploadFormats: "PDF, JPG, PNG · עד 10 MB",
+    uploaded: "הועלה",
+    paymentSummary: "סיכום תשלום",
+    payTotal: "סה״כ לתשלום",
+    payOnline: "שלם בכרטיס אשראי",
+    signature: "הסכמה והרשאה",
+    signatureConsent: "אני מסמיך את PMI Top Florida Properties לבצע בדיקת רקע, אשראי ופינוי עבור כל המגישים הרשומים לעיל. אני מאשר שכל המידע שמסרתי מדויק ומלא.",
+    iAgree: "אני מסכים לתנאים לעיל",
+    next: "המשך",
+    back: "חזרה",
+    submit: "שלח בקשה",
+    priceBreakdown: "פירוט מחיר",
+    perApplicant: "למגיש",
+    coupleRate: "תעריף זוגי (עם תעודה)",
+    applicationFee: "דמי בקשה",
+    backgroundCheck: "בדיקת רקע (Applycheck)",
+    yourMargin: "דמי עיבוד",
+    addlResident: "דייר נוסף",
+    chooseLanguage: "שפה",
+    consentRequired: "אנא הסכם לתנאים כדי להמשיך.",
+    allFieldsRequired: "אנא מלא את כל השדות הנדרשים.",
+    selectType: "אנא בחר סוג בקשה.",
+    selectAssocPlaceholder: "אנא בחר עמותה.",
+    payingNote: "מעביר לתשלום מאובטח…",
+    uploadError: "ההעלאה נכשלה — נסה שוב.",
+  },
+  ru: {
+    title: "Заявка на проживание",
+    subtitle: "PMI Top Florida Properties",
+    steps: ["Тип", "Заявители", "Документы", "Оплата"],
+    selectAssociation: "Выбрать ассоциацию",
+    associationPlaceholder: "Выберите вашу ассоциацию…",
+    loadingAssociations: "Загрузка ассоциаций…",
+    applicantType: "Тип заявки",
+    individual: "Индивидуальная",
+    individualDesc: "Один заявитель",
+    couple: "Семейная пара",
+    coupleDesc: "Совместная заявка с супругом/супругой",
+    additionalResident: "Дополнительный жилец",
+    additionalResidentDesc: "Дополнительный жилец по существующей заявке",
+    commercial: "Юридическое лицо",
+    commercialDesc: "Компания / корпоративный заявитель",
+    marriageCertUpload: "Свидетельство о браке",
+    marriageCertNote: "Загрузите свидетельство для семейного тарифа ($150). Без него каждый заявитель платит $100.",
+    hasCert: "Да — загрузить свидетельство",
+    noCert: "Без свидетельства — оплата раздельно ($100 каждый)",
+    applicant: "Заявитель",
+    firstName: "Имя",
+    lastName: "Фамилия",
+    dob: "Дата рождения",
+    email: "Электронная почта",
+    phone: "Номер телефона",
+    currentAddress: "Текущий адрес",
+    ssn: "SSN (или номер паспорта для иностранных заявителей)",
+    unitApplying: "Запрашиваемый юнит",
+    moveInDate: "Желаемая дата въезда",
+    entityName: "Название организации (по данным Sunbiz)",
+    sunbizId: "Регистрационный номер Sunbiz",
+    principals: "Зарегистрированные руководители",
+    addPrincipal: "+ Добавить руководителя",
+    principalName: "Имя руководителя",
+    principalDOB: "Дата рождения",
+    documents: "Необходимые документы",
+    govId: "Удостоверение личности",
+    proofIncome: "Подтверждение дохода",
+    marriageCert: "Свидетельство о браке",
+    uploadFile: "Нажмите для загрузки или перетащите файл",
+    uploadFormats: "PDF, JPG, PNG · до 10 МБ",
+    uploaded: "Загружено",
+    paymentSummary: "Итог по оплате",
+    payTotal: "Итого к оплате",
+    payOnline: "Оплатить картой",
+    signature: "Согласие и авторизация",
+    signatureConsent: "Я разрешаю PMI Top Florida Properties провести проверку биографии, кредитной истории и истории выселений для всех указанных заявителей. Я подтверждаю точность и полноту предоставленных данных.",
+    iAgree: "Я согласен с указанными условиями",
+    next: "Продолжить",
+    back: "Назад",
+    submit: "Отправить заявку",
+    priceBreakdown: "Детализация стоимости",
+    perApplicant: "за заявителя",
+    coupleRate: "Семейный тариф (со свидетельством)",
+    applicationFee: "Взнос за заявку",
+    backgroundCheck: "Проверка биографии (Applycheck)",
+    yourMargin: "Сбор за обработку",
+    addlResident: "Дополнительный жилец",
+    chooseLanguage: "Язык",
+    consentRequired: "Пожалуйста, примите условия для продолжения.",
+    allFieldsRequired: "Пожалуйста, заполните все обязательные поля.",
+    selectType: "Пожалуйста, выберите тип заявки.",
+    selectAssocPlaceholder: "Пожалуйста, выберите ассоциацию.",
+    payingNote: "Переход к безопасной оплате…",
+    uploadError: "Ошибка загрузки — попробуйте ещё раз.",
+  },
 };
 
-const flags    = { en: "🇺🇸", es: "🇪🇸", pt: "🇧🇷", fr: "🇫🇷" };
-const langNames = { en: "English", es: "Español", pt: "Português", fr: "Français" };
+const flags     = { en: "🇺🇸", es: "🇪🇸", pt: "🇧🇷", fr: "🇫🇷", he: "🇮🇱", ru: "🇷🇺" };
+const langNames = { en: "English", es: "Español", pt: "Português", fr: "Français", he: "עברית", ru: "Русский" };
 
 // ── Stripe singleton ──────────────────────────────────────────────────────────
 let stripePromise: ReturnType<typeof loadStripe> | null = null;
@@ -360,8 +494,10 @@ type ApplicantFieldsProps = {
   t: typeof translations.en;
   data: Record<string, string>;
   onChange: (idx: number, key: string, val: string) => void;
+  units: string[];
 };
-function ApplicantFields({ index, t, data, onChange }: ApplicantFieldsProps) {
+function ApplicantFields({ index, t, data, onChange, units }: ApplicantFieldsProps) {
+  const [unitOpen, setUnitOpen] = useState(false);
   const fields = [
     { key: "firstName",      label: t.firstName,      type: "text"  },
     { key: "lastName",       label: t.lastName,       type: "text"  },
@@ -370,10 +506,15 @@ function ApplicantFields({ index, t, data, onChange }: ApplicantFieldsProps) {
     { key: "phone",          label: t.phone,          type: "tel"   },
     { key: "ssn",            label: t.ssn,            type: "text"  },
     { key: "currentAddress", label: t.currentAddress, type: "text"  },
-    { key: "unitApplying",   label: t.unitApplying,   type: "text"  },
     { key: "moveInDate",     label: t.moveInDate,     type: "date"  },
   ];
   const full = new Set(["currentAddress", "ssn"]);
+  const inp = { width: "100%", boxSizing: "border-box" as const, padding: "9px 11px", borderRadius: 3, border: "1px solid #e5e7eb", fontSize: 14, color: "#0d0d0d", background: "#fff", outline: "none", fontFamily: "inherit", transition: "border-color 0.15s" };
+  const unitVal = data.unitApplying || "";
+  const filteredUnits = unitVal.trim().length === 0
+    ? units
+    : units.filter((u) => u.toLowerCase().includes(unitVal.toLowerCase()));
+
   return (
     <div style={{ background: "#fafaf9", borderRadius: 4, padding: 20, marginBottom: 14, border: "1px solid #e5e7eb" }}>
       {index > 0 && (
@@ -389,12 +530,56 @@ function ApplicantFields({ index, t, data, onChange }: ApplicantFieldsProps) {
               type={type}
               value={data[key] || ""}
               onChange={(e) => onChange(index, key, e.target.value)}
-              style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 3, border: "1px solid #e5e7eb", fontSize: 14, color: "#0d0d0d", background: "#fff", outline: "none", fontFamily: "inherit", transition: "border-color 0.15s" }}
+              style={inp}
               onFocus={(e) => (e.target.style.borderColor = "#f26a1b")}
               onBlur={(e)  => (e.target.style.borderColor = "#e5e7eb")}
             />
           </div>
         ))}
+
+        {/* Unit number — combobox against known units if available */}
+        <div style={{ gridColumn: "auto" }}>
+          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#6b7280", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            {t.unitApplying} *
+          </label>
+          <div style={{ position: "relative" }}>
+            <input
+              type="text"
+              value={unitVal}
+              autoComplete="off"
+              onChange={(e) => { onChange(index, "unitApplying", e.target.value); setUnitOpen(true); }}
+              onFocus={(e) => { setUnitOpen(true); e.target.style.borderColor = "#f26a1b"; }}
+              onBlur={(e) => { setTimeout(() => setUnitOpen(false), 160); e.target.style.borderColor = unitVal && units.includes(unitVal) ? "#1a6b3c" : "#e5e7eb"; }}
+              style={{ ...inp, borderColor: unitVal && units.length > 0 && units.includes(unitVal) ? "#1a6b3c" : "#e5e7eb" }}
+            />
+            {/* Confirmed indicator */}
+            {unitVal && units.length > 0 && units.includes(unitVal) && (
+              <span style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", color: "#1a6b3c", fontSize: 13 }}>✓</span>
+            )}
+            {/* Dropdown — only shown when units are known */}
+            {unitOpen && units.length > 0 && filteredUnits.length > 0 && (
+              <div style={{ position: "absolute", top: "calc(100% + 3px)", left: 0, right: 0, background: "#fff", border: "1px solid #e5e7eb", borderRadius: 4, boxShadow: "0 6px 20px rgba(0,0,0,0.1)", zIndex: 50, maxHeight: 180, overflowY: "auto" }}>
+                {filteredUnits.map((u) => (
+                  <div
+                    key={u}
+                    onMouseDown={() => { onChange(index, "unitApplying", u); setUnitOpen(false); }}
+                    style={{ padding: "8px 12px", fontSize: 13, cursor: "pointer", color: "#0d0d0d" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "#fff7f0")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  >
+                    Unit {u}
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* Warn if value typed doesn't match any known unit */}
+            {unitVal && units.length > 0 && !units.includes(unitVal) && (
+              <div style={{ marginTop: 4, fontSize: 11, color: "#d97706" }}>
+                ⚠ Unit not found in this association — double-check the number
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -408,7 +593,11 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
   const t                             = translations[lang as keyof typeof translations];
   const [step, setStep]               = useState(0);
   const [association, setAssociation] = useState(preselectedAssociation || "");
-  const [associations, setAssociations] = useState<{ name: string; code: string }[]>([]);
+  const [assocSearch, setAssocSearch] = useState(preselectedAssociation || "");
+  const [assocOpen, setAssocOpen]     = useState(false);
+  const [associations, setAssociations] = useState<{ name: string; code: string; address: string; city: string; state: string; zip: string }[]>([]);
+  const [assocCode, setAssocCode]     = useState("");
+  const [assocUnits, setAssocUnits]   = useState<string[]>([]);
   const [assocLoading, setAssocLoading] = useState(true);
   const [appType, setAppType]         = useState("");
   const [coupleOption, setCoupleOption] = useState("");
@@ -428,23 +617,26 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
   const isCouple     = appType === "couple";
   const hasCert      = coupleOption === "yes";
   const isCommercial = appType === "commercial";
+  const selectedAssoc = associations.find((a) => a.code === assocCode) ?? null;
 
-  // ── Load associations from Supabase ────────────────────────────────────────
+  // ── Load associations from the associations table (via API route) ─────────
   useEffect(() => {
     async function fetchAssociations() {
       setAssocLoading(true);
-      const { data, error: err } = await supabase
-        .from("homeowners")
-        .select("association_name, association_code")
-        .order("association_name");
-      if (!err && data) {
-        // Deduplicate by association_name
-        const seen = new Set();
-        const unique = data
-          .filter((r) => { if (seen.has(r.association_name)) return false; seen.add(r.association_name); return true; })
-          .map((r) => ({ name: r.association_name, code: r.association_code }));
-        setAssociations(unique);
-      }
+      try {
+        const res = await fetch("/api/associations");
+        if (res.ok) {
+          const data: { association_name: string; association_code: string; principal_address?: string; city?: string; state?: string; zip?: string }[] = await res.json();
+          setAssociations(data.map((r) => ({
+            name:    r.association_name,
+            code:    r.association_code,
+            address: r.principal_address ?? "",
+            city:    r.city ?? "",
+            state:   r.state ?? "",
+            zip:     r.zip ?? "",
+          })));
+        }
+      } catch { /* leave list empty — user can still type */ }
       setAssocLoading(false);
     }
     fetchAssociations();
@@ -594,11 +786,13 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
     fontFamily: "inherit", transition: "border-color 0.15s",
   };
 
+  const isRTL = lang === "he";
+
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <>
     <SiteHeader subtitle="TENANT APPLICATION PORTAL" />
-    <div style={{ minHeight: "100vh", background: "#0d0d0d", fontFamily: "'DM Sans', system-ui, sans-serif", padding: "24px 16px" }}>
+    <div style={{ minHeight: "100vh", background: "#0d0d0d", fontFamily: "'DM Sans', system-ui, sans-serif", padding: "24px 16px" }} dir={isRTL ? "rtl" : undefined}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap');
         * { box-sizing: border-box; }
@@ -662,7 +856,7 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
           {/* ══ STEP 0: Type + Association ══════════════════════════════════ */}
           {step === 0 && (
             <div>
-              {/* Association selector — from Supabase */}
+              {/* Association search combobox */}
               <div style={{ marginBottom: 24 }}>
                 <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 7, fontFamily: "monospace" }}>
                   {t.selectAssociation}
@@ -672,17 +866,87 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
                     {t.loadingAssociations}
                   </div>
                 ) : (
-                  <select
-                    value={association}
-                    onChange={(e) => setAssociation(e.target.value)}
-                    disabled={!!preselectedAssociation}
-                    style={{ ...inp, color: association ? "#0d0d0d" : "#9ca3af", cursor: preselectedAssociation ? "default" : "pointer" }}
-                  >
-                    <option value="">{t.associationPlaceholder}</option>
-                    {associations.map((a) => (
-                      <option key={a.code} value={a.name}>{a.name}</option>
-                    ))}
-                  </select>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type="text"
+                      value={assocSearch}
+                      placeholder={t.associationPlaceholder}
+                      readOnly={!!preselectedAssociation}
+                      autoComplete="off"
+                      onChange={(e) => {
+                        setAssocSearch(e.target.value);
+                        setAssociation("");
+                        setAssocOpen(true);
+                      }}
+                      onFocus={() => setAssocOpen(true)}
+                      onBlur={() => setTimeout(() => setAssocOpen(false), 160)}
+                      style={{ ...inp, borderColor: association ? "#f26a1b" : "#e5e7eb", cursor: preselectedAssociation ? "default" : "text", paddingRight: 32 }}
+                    />
+                    {/* clear button */}
+                    {assocSearch && !preselectedAssociation && (
+                      <button
+                        onClick={() => { setAssocSearch(""); setAssociation(""); setAssocCode(""); setAssocUnits([]); setAssocOpen(true); }}
+                        style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#9ca3af", fontSize: 16, lineHeight: 1, padding: 2 }}
+                      >×</button>
+                    )}
+                    {/* dropdown */}
+                    {assocOpen && !preselectedAssociation && (() => {
+                      const q = assocSearch.trim().toLowerCase();
+                      const filtered = (q.length === 0 ? associations : associations.filter((a) =>
+                        a.name.toLowerCase().includes(q) ||
+                        a.address.toLowerCase().includes(q) ||
+                        a.city.toLowerCase().includes(q)
+                      )).slice(0, 12);
+                      return (
+                        <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: "#fff", border: "1px solid #e5e7eb", borderRadius: 4, boxShadow: "0 8px 24px rgba(0,0,0,0.12)", zIndex: 50, maxHeight: 280, overflowY: "auto" }}>
+                          {filtered.length === 0 ? (
+                            <div style={{ padding: "12px 14px", fontSize: 13, color: "#9ca3af" }}>No associations found</div>
+                          ) : filtered.map((a) => (
+                            <div
+                              key={a.code}
+                              onMouseDown={() => {
+                                setAssociation(a.name);
+                                setAssocSearch(a.name);
+                                setAssocCode(a.code);
+                                setAssocOpen(false);
+                                fetch(`/api/associations/units?code=${encodeURIComponent(a.code)}`)
+                                  .then((r) => r.json())
+                                  .then((units: string[]) => setAssocUnits(units))
+                                  .catch(() => setAssocUnits([]));
+                              }}
+                              style={{ padding: "10px 14px", cursor: "pointer", borderBottom: "1px solid #f9fafb" }}
+                              onMouseEnter={(e) => (e.currentTarget.style.background = "#fff7f0")}
+                              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                            >
+                              <div style={{ fontSize: 13, fontWeight: 600, color: "#0d0d0d" }}>{a.name}</div>
+                              {(a.address || a.city) && (
+                                <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>
+                                  {[a.address, a.city, a.state, a.zip].filter(Boolean).join(", ")}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+                {/* Property address confirmation card — matches what appears on lease/purchase agreement */}
+                {selectedAssoc && (
+                  <div style={{ marginTop: 8, padding: "10px 14px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 4 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#1a6b3c", textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "monospace", marginBottom: 4 }}>
+                      ✓ Property Confirmed
+                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "#0d0d0d" }}>{selectedAssoc.name}</div>
+                    {(selectedAssoc.address || selectedAssoc.city) && (
+                      <div style={{ fontSize: 12, color: "#374151", marginTop: 2 }}>
+                        {[selectedAssoc.address, selectedAssoc.city, selectedAssoc.state, selectedAssoc.zip].filter(Boolean).join(", ")}
+                      </div>
+                    )}
+                    <div style={{ fontSize: 11, color: "#6b7280", marginTop: 4, fontStyle: "italic" }}>
+                      Verify this address matches your lease or purchase agreement
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -768,7 +1032,7 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
                 </div>
               ) : (
                 applicants.map((a, idx) => (
-                  <ApplicantFields key={idx} index={idx} t={t} data={a} onChange={updateApplicant} />
+                  <ApplicantFields key={idx} index={idx} t={t} data={a} onChange={updateApplicant} units={assocUnits} />
                 ))
               )}
             </div>
