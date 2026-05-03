@@ -494,8 +494,10 @@ type ApplicantFieldsProps = {
   t: typeof translations.en;
   data: Record<string, string>;
   onChange: (idx: number, key: string, val: string) => void;
+  units: string[];
 };
-function ApplicantFields({ index, t, data, onChange }: ApplicantFieldsProps) {
+function ApplicantFields({ index, t, data, onChange, units }: ApplicantFieldsProps) {
+  const [unitOpen, setUnitOpen] = useState(false);
   const fields = [
     { key: "firstName",      label: t.firstName,      type: "text"  },
     { key: "lastName",       label: t.lastName,       type: "text"  },
@@ -504,10 +506,15 @@ function ApplicantFields({ index, t, data, onChange }: ApplicantFieldsProps) {
     { key: "phone",          label: t.phone,          type: "tel"   },
     { key: "ssn",            label: t.ssn,            type: "text"  },
     { key: "currentAddress", label: t.currentAddress, type: "text"  },
-    { key: "unitApplying",   label: t.unitApplying,   type: "text"  },
     { key: "moveInDate",     label: t.moveInDate,     type: "date"  },
   ];
   const full = new Set(["currentAddress", "ssn"]);
+  const inp = { width: "100%", boxSizing: "border-box" as const, padding: "9px 11px", borderRadius: 3, border: "1px solid #e5e7eb", fontSize: 14, color: "#0d0d0d", background: "#fff", outline: "none", fontFamily: "inherit", transition: "border-color 0.15s" };
+  const unitVal = data.unitApplying || "";
+  const filteredUnits = unitVal.trim().length === 0
+    ? units
+    : units.filter((u) => u.toLowerCase().includes(unitVal.toLowerCase()));
+
   return (
     <div style={{ background: "#fafaf9", borderRadius: 4, padding: 20, marginBottom: 14, border: "1px solid #e5e7eb" }}>
       {index > 0 && (
@@ -523,12 +530,56 @@ function ApplicantFields({ index, t, data, onChange }: ApplicantFieldsProps) {
               type={type}
               value={data[key] || ""}
               onChange={(e) => onChange(index, key, e.target.value)}
-              style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 3, border: "1px solid #e5e7eb", fontSize: 14, color: "#0d0d0d", background: "#fff", outline: "none", fontFamily: "inherit", transition: "border-color 0.15s" }}
+              style={inp}
               onFocus={(e) => (e.target.style.borderColor = "#f26a1b")}
               onBlur={(e)  => (e.target.style.borderColor = "#e5e7eb")}
             />
           </div>
         ))}
+
+        {/* Unit number — combobox against known units if available */}
+        <div style={{ gridColumn: "auto" }}>
+          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#6b7280", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            {t.unitApplying} *
+          </label>
+          <div style={{ position: "relative" }}>
+            <input
+              type="text"
+              value={unitVal}
+              autoComplete="off"
+              onChange={(e) => { onChange(index, "unitApplying", e.target.value); setUnitOpen(true); }}
+              onFocus={(e) => { setUnitOpen(true); e.target.style.borderColor = "#f26a1b"; }}
+              onBlur={(e) => { setTimeout(() => setUnitOpen(false), 160); e.target.style.borderColor = unitVal && units.includes(unitVal) ? "#1a6b3c" : "#e5e7eb"; }}
+              style={{ ...inp, borderColor: unitVal && units.length > 0 && units.includes(unitVal) ? "#1a6b3c" : "#e5e7eb" }}
+            />
+            {/* Confirmed indicator */}
+            {unitVal && units.length > 0 && units.includes(unitVal) && (
+              <span style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", color: "#1a6b3c", fontSize: 13 }}>✓</span>
+            )}
+            {/* Dropdown — only shown when units are known */}
+            {unitOpen && units.length > 0 && filteredUnits.length > 0 && (
+              <div style={{ position: "absolute", top: "calc(100% + 3px)", left: 0, right: 0, background: "#fff", border: "1px solid #e5e7eb", borderRadius: 4, boxShadow: "0 6px 20px rgba(0,0,0,0.1)", zIndex: 50, maxHeight: 180, overflowY: "auto" }}>
+                {filteredUnits.map((u) => (
+                  <div
+                    key={u}
+                    onMouseDown={() => { onChange(index, "unitApplying", u); setUnitOpen(false); }}
+                    style={{ padding: "8px 12px", fontSize: 13, cursor: "pointer", color: "#0d0d0d" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "#fff7f0")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  >
+                    Unit {u}
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* Warn if value typed doesn't match any known unit */}
+            {unitVal && units.length > 0 && !units.includes(unitVal) && (
+              <div style={{ marginTop: 4, fontSize: 11, color: "#d97706" }}>
+                ⚠ Unit not found in this association — double-check the number
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -542,7 +593,11 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
   const t                             = translations[lang as keyof typeof translations];
   const [step, setStep]               = useState(0);
   const [association, setAssociation] = useState(preselectedAssociation || "");
-  const [associations, setAssociations] = useState<{ name: string; code: string }[]>([]);
+  const [assocSearch, setAssocSearch] = useState(preselectedAssociation || "");
+  const [assocOpen, setAssocOpen]     = useState(false);
+  const [associations, setAssociations] = useState<{ name: string; code: string; address: string; city: string }[]>([]);
+  const [assocCode, setAssocCode]     = useState("");
+  const [assocUnits, setAssocUnits]   = useState<string[]>([]);
   const [assocLoading, setAssocLoading] = useState(true);
   const [appType, setAppType]         = useState("");
   const [coupleOption, setCoupleOption] = useState("");
@@ -570,8 +625,13 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
       try {
         const res = await fetch("/api/associations");
         if (res.ok) {
-          const data: { association_name: string; association_code: string }[] = await res.json();
-          setAssociations(data.map((r) => ({ name: r.association_name, code: r.association_code })));
+          const data: { association_name: string; association_code: string; principal_address?: string; city?: string }[] = await res.json();
+          setAssociations(data.map((r) => ({
+            name:    r.association_name,
+            code:    r.association_code,
+            address: r.principal_address ?? "",
+            city:    r.city ?? "",
+          })));
         }
       } catch { /* leave list empty — user can still type */ }
       setAssocLoading(false);
@@ -793,7 +853,7 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
           {/* ══ STEP 0: Type + Association ══════════════════════════════════ */}
           {step === 0 && (
             <div>
-              {/* Association selector — from Supabase */}
+              {/* Association search combobox */}
               <div style={{ marginBottom: 24 }}>
                 <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 7, fontFamily: "monospace" }}>
                   {t.selectAssociation}
@@ -803,17 +863,77 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
                     {t.loadingAssociations}
                   </div>
                 ) : (
-                  <select
-                    value={association}
-                    onChange={(e) => setAssociation(e.target.value)}
-                    disabled={!!preselectedAssociation}
-                    style={{ ...inp, color: association ? "#0d0d0d" : "#9ca3af", cursor: preselectedAssociation ? "default" : "pointer" }}
-                  >
-                    <option value="">{t.associationPlaceholder}</option>
-                    {associations.map((a) => (
-                      <option key={a.code} value={a.name}>{a.name}</option>
-                    ))}
-                  </select>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type="text"
+                      value={assocSearch}
+                      placeholder={t.associationPlaceholder}
+                      readOnly={!!preselectedAssociation}
+                      autoComplete="off"
+                      onChange={(e) => {
+                        setAssocSearch(e.target.value);
+                        setAssociation("");
+                        setAssocOpen(true);
+                      }}
+                      onFocus={() => setAssocOpen(true)}
+                      onBlur={() => setTimeout(() => setAssocOpen(false), 160)}
+                      style={{ ...inp, borderColor: association ? "#f26a1b" : "#e5e7eb", cursor: preselectedAssociation ? "default" : "text", paddingRight: 32 }}
+                    />
+                    {/* clear button */}
+                    {assocSearch && !preselectedAssociation && (
+                      <button
+                        onClick={() => { setAssocSearch(""); setAssociation(""); setAssocOpen(true); }}
+                        style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#9ca3af", fontSize: 16, lineHeight: 1, padding: 2 }}
+                      >×</button>
+                    )}
+                    {/* dropdown */}
+                    {assocOpen && !preselectedAssociation && (() => {
+                      const q = assocSearch.trim().toLowerCase();
+                      const filtered = (q.length === 0 ? associations : associations.filter((a) =>
+                        a.name.toLowerCase().includes(q) ||
+                        a.address.toLowerCase().includes(q) ||
+                        a.city.toLowerCase().includes(q)
+                      )).slice(0, 10);
+                      return (
+                        <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: "#fff", border: "1px solid #e5e7eb", borderRadius: 4, boxShadow: "0 8px 24px rgba(0,0,0,0.12)", zIndex: 50, maxHeight: 260, overflowY: "auto" }}>
+                          {filtered.length === 0 ? (
+                            <div style={{ padding: "12px 14px", fontSize: 13, color: "#9ca3af" }}>No associations found</div>
+                          ) : filtered.map((a) => (
+                            <div
+                              key={a.code}
+                              onMouseDown={() => {
+                                setAssociation(a.name);
+                                setAssocSearch(a.name);
+                                setAssocCode(a.code);
+                                setAssocOpen(false);
+                                // fetch known units for this association
+                                fetch(`/api/associations/units?code=${encodeURIComponent(a.code)}`)
+                                  .then((r) => r.json())
+                                  .then((units: string[]) => setAssocUnits(units))
+                                  .catch(() => setAssocUnits([]));
+                              }}
+                              style={{ padding: "10px 14px", cursor: "pointer", borderBottom: "1px solid #f9fafb" }}
+                              onMouseEnter={(e) => (e.currentTarget.style.background = "#fff7f0")}
+                              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                            >
+                              <div style={{ fontSize: 13, fontWeight: 600, color: "#0d0d0d" }}>{a.name}</div>
+                              {(a.address || a.city) && (
+                                <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>
+                                  {[a.address, a.city].filter(Boolean).join(", ")}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+                {/* confirmed selection badge */}
+                {association && (
+                  <div style={{ marginTop: 6, fontSize: 11, color: "#1a6b3c", display: "flex", alignItems: "center", gap: 4 }}>
+                    <span>✓</span> {association}
+                  </div>
                 )}
               </div>
 
@@ -899,7 +1019,7 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
                 </div>
               ) : (
                 applicants.map((a, idx) => (
-                  <ApplicantFields key={idx} index={idx} t={t} data={a} onChange={updateApplicant} />
+                  <ApplicantFields key={idx} index={idx} t={t} data={a} onChange={updateApplicant} units={assocUnits} />
                 ))
               )}
             </div>
