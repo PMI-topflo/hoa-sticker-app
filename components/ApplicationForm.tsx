@@ -5,7 +5,7 @@ import SiteHeader from "@/components/SiteHeader";
 import { loadStripe } from "@stripe/stripe-js";
 import { createClient } from "@supabase/supabase-js";
 
-// ── Supabase client (public/read-only anon key) ──────────────────────────────
+// ── Supabase client — used only for Storage uploads (anon key) ────────────────
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -287,10 +287,144 @@ const translations = {
     payingNote: "Redirection vers le paiement sécurisé…",
     uploadError: "Échec du téléchargement — veuillez réessayer.",
   },
+  he: {
+    title: "בקשת מגורים",
+    subtitle: "PMI Top Florida Properties",
+    steps: ["סוג", "מגישים", "מסמכים", "תשלום"],
+    selectAssociation: "בחר עמותה",
+    associationPlaceholder: "בחר את העמותה שלך…",
+    loadingAssociations: "טוען עמותות…",
+    applicantType: "סוג בקשה",
+    individual: "יחיד",
+    individualDesc: "מגיש יחיד",
+    couple: "זוג נשוי",
+    coupleDesc: "בקשה משותפת עם בן/בת הזוג",
+    additionalResident: "דייר נוסף",
+    additionalResidentDesc: "דייר נוסף על בקשה קיימת",
+    commercial: "ישות מסחרית",
+    commercialDesc: "עסק / מגיש תאגידי",
+    marriageCertUpload: "תעודת נישואין",
+    marriageCertNote: "העלה תעודת נישואין לתעריף זוגי ($150). ללא תעודה, כל מגיש ישלם $100.",
+    hasCert: "כן — העלה תעודה",
+    noCert: "ללא תעודה — חיוב נפרד ($100 לכל אחד)",
+    applicant: "מגיש",
+    firstName: "שם פרטי",
+    lastName: "שם משפחה",
+    dob: "תאריך לידה",
+    email: "כתובת אימייל",
+    phone: "מספר טלפון",
+    currentAddress: "כתובת נוכחית",
+    ssn: "מספר ביטוח לאומי (או מספר דרכון למגישים בינלאומיים)",
+    unitApplying: "יחידה מבוקשת",
+    moveInDate: "תאריך כניסה מבוקש",
+    entityName: "שם הישות (כפי שמופיע ב-Sunbiz)",
+    sunbizId: "מספר רישום Sunbiz",
+    principals: "בעלי עניין רשומים",
+    addPrincipal: "+ הוסף בעל עניין",
+    principalName: "שם בעל עניין",
+    principalDOB: "תאריך לידה",
+    documents: "מסמכים נדרשים",
+    govId: "תעודת זהות ממשלתית",
+    proofIncome: "אישור הכנסה",
+    marriageCert: "תעודת נישואין",
+    uploadFile: "לחץ להעלאה או גרור קובץ",
+    uploadFormats: "PDF, JPG, PNG · עד 10 MB",
+    uploaded: "הועלה",
+    paymentSummary: "סיכום תשלום",
+    payTotal: "סה״כ לתשלום",
+    payOnline: "שלם בכרטיס אשראי",
+    signature: "הסכמה והרשאה",
+    signatureConsent: "אני מסמיך את PMI Top Florida Properties לבצע בדיקת רקע, אשראי ופינוי עבור כל המגישים הרשומים לעיל. אני מאשר שכל המידע שמסרתי מדויק ומלא.",
+    iAgree: "אני מסכים לתנאים לעיל",
+    next: "המשך",
+    back: "חזרה",
+    submit: "שלח בקשה",
+    priceBreakdown: "פירוט מחיר",
+    perApplicant: "למגיש",
+    coupleRate: "תעריף זוגי (עם תעודה)",
+    applicationFee: "דמי בקשה",
+    backgroundCheck: "בדיקת רקע (Applycheck)",
+    yourMargin: "דמי עיבוד",
+    addlResident: "דייר נוסף",
+    chooseLanguage: "שפה",
+    consentRequired: "אנא הסכם לתנאים כדי להמשיך.",
+    allFieldsRequired: "אנא מלא את כל השדות הנדרשים.",
+    selectType: "אנא בחר סוג בקשה.",
+    selectAssocPlaceholder: "אנא בחר עמותה.",
+    payingNote: "מעביר לתשלום מאובטח…",
+    uploadError: "ההעלאה נכשלה — נסה שוב.",
+  },
+  ru: {
+    title: "Заявка на проживание",
+    subtitle: "PMI Top Florida Properties",
+    steps: ["Тип", "Заявители", "Документы", "Оплата"],
+    selectAssociation: "Выбрать ассоциацию",
+    associationPlaceholder: "Выберите вашу ассоциацию…",
+    loadingAssociations: "Загрузка ассоциаций…",
+    applicantType: "Тип заявки",
+    individual: "Индивидуальная",
+    individualDesc: "Один заявитель",
+    couple: "Семейная пара",
+    coupleDesc: "Совместная заявка с супругом/супругой",
+    additionalResident: "Дополнительный жилец",
+    additionalResidentDesc: "Дополнительный жилец по существующей заявке",
+    commercial: "Юридическое лицо",
+    commercialDesc: "Компания / корпоративный заявитель",
+    marriageCertUpload: "Свидетельство о браке",
+    marriageCertNote: "Загрузите свидетельство для семейного тарифа ($150). Без него каждый заявитель платит $100.",
+    hasCert: "Да — загрузить свидетельство",
+    noCert: "Без свидетельства — оплата раздельно ($100 каждый)",
+    applicant: "Заявитель",
+    firstName: "Имя",
+    lastName: "Фамилия",
+    dob: "Дата рождения",
+    email: "Электронная почта",
+    phone: "Номер телефона",
+    currentAddress: "Текущий адрес",
+    ssn: "SSN (или номер паспорта для иностранных заявителей)",
+    unitApplying: "Запрашиваемый юнит",
+    moveInDate: "Желаемая дата въезда",
+    entityName: "Название организации (по данным Sunbiz)",
+    sunbizId: "Регистрационный номер Sunbiz",
+    principals: "Зарегистрированные руководители",
+    addPrincipal: "+ Добавить руководителя",
+    principalName: "Имя руководителя",
+    principalDOB: "Дата рождения",
+    documents: "Необходимые документы",
+    govId: "Удостоверение личности",
+    proofIncome: "Подтверждение дохода",
+    marriageCert: "Свидетельство о браке",
+    uploadFile: "Нажмите для загрузки или перетащите файл",
+    uploadFormats: "PDF, JPG, PNG · до 10 МБ",
+    uploaded: "Загружено",
+    paymentSummary: "Итог по оплате",
+    payTotal: "Итого к оплате",
+    payOnline: "Оплатить картой",
+    signature: "Согласие и авторизация",
+    signatureConsent: "Я разрешаю PMI Top Florida Properties провести проверку биографии, кредитной истории и истории выселений для всех указанных заявителей. Я подтверждаю точность и полноту предоставленных данных.",
+    iAgree: "Я согласен с указанными условиями",
+    next: "Продолжить",
+    back: "Назад",
+    submit: "Отправить заявку",
+    priceBreakdown: "Детализация стоимости",
+    perApplicant: "за заявителя",
+    coupleRate: "Семейный тариф (со свидетельством)",
+    applicationFee: "Взнос за заявку",
+    backgroundCheck: "Проверка биографии (Applycheck)",
+    yourMargin: "Сбор за обработку",
+    addlResident: "Дополнительный жилец",
+    chooseLanguage: "Язык",
+    consentRequired: "Пожалуйста, примите условия для продолжения.",
+    allFieldsRequired: "Пожалуйста, заполните все обязательные поля.",
+    selectType: "Пожалуйста, выберите тип заявки.",
+    selectAssocPlaceholder: "Пожалуйста, выберите ассоциацию.",
+    payingNote: "Переход к безопасной оплате…",
+    uploadError: "Ошибка загрузки — попробуйте ещё раз.",
+  },
 };
 
-const flags    = { en: "🇺🇸", es: "🇪🇸", pt: "🇧🇷", fr: "🇫🇷" };
-const langNames = { en: "English", es: "Español", pt: "Português", fr: "Français" };
+const flags     = { en: "🇺🇸", es: "🇪🇸", pt: "🇧🇷", fr: "🇫🇷", he: "🇮🇱", ru: "🇷🇺" };
+const langNames = { en: "English", es: "Español", pt: "Português", fr: "Français", he: "עברית", ru: "Русский" };
 
 // ── Stripe singleton ──────────────────────────────────────────────────────────
 let stripePromise: ReturnType<typeof loadStripe> | null = null;
@@ -429,22 +563,17 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
   const hasCert      = coupleOption === "yes";
   const isCommercial = appType === "commercial";
 
-  // ── Load associations from Supabase ────────────────────────────────────────
+  // ── Load associations from the associations table (via API route) ─────────
   useEffect(() => {
     async function fetchAssociations() {
       setAssocLoading(true);
-      const { data, error: err } = await supabase
-        .from("homeowners")
-        .select("association_name, association_code")
-        .order("association_name");
-      if (!err && data) {
-        // Deduplicate by association_name
-        const seen = new Set();
-        const unique = data
-          .filter((r) => { if (seen.has(r.association_name)) return false; seen.add(r.association_name); return true; })
-          .map((r) => ({ name: r.association_name, code: r.association_code }));
-        setAssociations(unique);
-      }
+      try {
+        const res = await fetch("/api/associations");
+        if (res.ok) {
+          const data: { association_name: string; association_code: string }[] = await res.json();
+          setAssociations(data.map((r) => ({ name: r.association_name, code: r.association_code })));
+        }
+      } catch { /* leave list empty — user can still type */ }
       setAssocLoading(false);
     }
     fetchAssociations();
@@ -594,11 +723,13 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
     fontFamily: "inherit", transition: "border-color 0.15s",
   };
 
+  const isRTL = lang === "he";
+
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <>
     <SiteHeader subtitle="TENANT APPLICATION PORTAL" />
-    <div style={{ minHeight: "100vh", background: "#0d0d0d", fontFamily: "'DM Sans', system-ui, sans-serif", padding: "24px 16px" }}>
+    <div style={{ minHeight: "100vh", background: "#0d0d0d", fontFamily: "'DM Sans', system-ui, sans-serif", padding: "24px 16px" }} dir={isRTL ? "rtl" : undefined}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap');
         * { box-sizing: border-box; }
