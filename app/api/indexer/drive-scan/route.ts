@@ -18,14 +18,20 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@supabase/supabase-js';
 
 // ---- Clients ----
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { persistSession: false } }
-);
+function getSupabase() {
+  const env = process.env;
+  const url = env['NEXT_PUBLIC_SUPABASE_URL'];
+  const key = env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error('Supabase env vars missing');
+  return createClient(url, key, { auth: { persistSession: false } });
+}
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const gemini = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+function getGemini() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error('GEMINI_API_KEY missing');
+  const genAI = new GoogleGenerativeAI(apiKey);
+  return genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+}
 
 // Drive client uses the same service account as Gmail OAuth (or a dedicated one)
 function driveClient() {
@@ -102,7 +108,7 @@ async function extractFromPdf(fileId: string, folderType: FolderType, drive: Ret
   );
   const base64 = Buffer.from(fileRes.data as ArrayBuffer).toString('base64');
 
-  const result = await gemini.generateContent([
+  const result = await getGemini().generateContent([
     { inlineData: { data: base64, mimeType: 'application/pdf' } },
     { text: PROMPTS[folderType] },
   ]);
@@ -159,7 +165,7 @@ async function resolveAccountNumber(associationCode: string, unitNumber: string 
 
 // ---- Upsert helpers (one per record type) ----
 async function upsertLease(associationCode: string, accountNumber: string, ext: any, fileId: string, fileUrl: string) {
-  await supabase.from('unit_leases').upsert({
+  await getSupabase().from('unit_leases').upsert({
     account_number: accountNumber,
     association_code: associationCode,
     tenant_name: ext.tenant_name,
@@ -176,7 +182,7 @@ async function upsertLease(associationCode: string, accountNumber: string, ext: 
 }
 
 async function upsertInsurance(associationCode: string, accountNumber: string, ext: any, fileId: string, fileUrl: string) {
-  await supabase.from('unit_insurance').upsert({
+  await getSupabase().from('unit_insurance').upsert({
     account_number: accountNumber,
     association_code: associationCode,
     carrier: ext.carrier,
@@ -192,7 +198,7 @@ async function upsertInsurance(associationCode: string, accountNumber: string, e
 }
 
 async function upsertCou(associationCode: string, accountNumber: string, ext: any, fileId: string, fileUrl: string) {
-  await supabase.from('unit_certificate_of_use').upsert({
+  await getSupabase().from('unit_certificate_of_use').upsert({
     account_number: accountNumber,
     association_code: associationCode,
     city: 'Lauderhill',
@@ -209,7 +215,7 @@ async function upsertCou(associationCode: string, accountNumber: string, ext: an
 }
 
 async function upsertViolation(associationCode: string, accountNumber: string, ext: any, fileId: string, fileUrl: string) {
-  await supabase.from('unit_violations').upsert({
+  await getSupabase().from('unit_violations').upsert({
     account_number: accountNumber,
     association_code: associationCode,
     violation_type: ext.violation_type,
@@ -300,7 +306,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    await supabase.from('drive_indexer_log').update({
+    await getSupabase().from('drive_indexer_log').update({
       files_seen: files.length,
       files_processed: processed,
       files_skipped: skipped,
@@ -319,7 +325,7 @@ export async function POST(req: NextRequest) {
       durationMs: Date.now() - startedAt,
     });
   } catch (e: any) {
-    await supabase.from('drive_indexer_log').update({
+    await getSupabase().from('drive_indexer_log').update({
       errors: errors + 1,
       error_details: [...errorDetails, { fatal: e.message }],
       duration_ms: Date.now() - startedAt,

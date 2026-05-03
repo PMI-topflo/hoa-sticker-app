@@ -12,11 +12,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import twilio from 'twilio'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-)
-
+function getSupabase() {
+  const env = process.env;
+  const url = env.SUPABASE_URL;
+  const key = env.SUPABASE_SERVICE_KEY;
+  if (!url || !key) throw new Error('Supabase env vars missing');
+  return createClient(url, key);
+}
 const twilioClient = twilio(
   process.env.TWILIO_ACCOUNT_SID!,
   process.env.TWILIO_AUTH_TOKEN!
@@ -376,7 +378,7 @@ async function sendWhatsAppFromVoice(toPhone: string, content: string, ctx: Call
     console.error('[VOICE→WHATSAPP] Send failed:', err)
   }
 
-  void supabase.from('general_conversations').insert({
+  void getSupabase().from('general_conversations').insert({
     session_id:    `voice-wa-${ctx.phone}-${Date.now()}`,
     phone_number:  ctx.phone,
     contact_phone: ctx.phone,
@@ -517,7 +519,7 @@ async function maybeRequestFeedback(phone: string, ctx: CallerContext, flowType:
   const config = FEEDBACK_CONFIG[flowType]
   if (!config) return
 
-  const { count } = await supabase.from('general_conversations')
+  const { count } = await getSupabase().from('general_conversations')
     .select('*', { count: 'exact', head: true }).eq('phone_number', phone)
 
   const feedbackType: FeedbackType = (count ?? 0) >= 5 ? 'stars' : config.type
@@ -574,7 +576,7 @@ async function processFeedbackReply(phone: string, message: string, ctx: CallerC
 
   const analysis = await analyzeFeedback({ comment, starsValue, thumbsValue, flowType: data.flowType, persona: data.persona, language: lang })
 
-  await supabase.from('conversation_feedback').insert({
+  await getSupabase().from('conversation_feedback').insert({
     conversation_id: phone + '_' + data.sentAt, phone_number: phone,
     persona: data.persona, language: lang, division: ctx.division,
     channel: data.channel, rating_type: feedbackType,
@@ -588,7 +590,7 @@ async function processFeedbackReply(phone: string, message: string, ctx: CallerC
   const isNegative = (starsValue !== null && starsValue <= 2) || thumbsValue === 'down'
 
   if (isNegative) {
-    await supabase.from('board_tickets').insert({
+    await getSupabase().from('board_tickets').insert({
       ticket_type: 'feedback_review',
       subject: `⚠️ Low Rating — ${data.flowType.replace(/_/g, ' ')} (${starsValue ? starsValue + '★' : '👎'})`,
       description: `Phone: ${phone}\nPersona: ${data.persona}\nFlow: ${data.flowType}\nComment: ${comment ?? 'None'}\nAI Suggestion: ${analysis.improvement}`,
@@ -649,7 +651,7 @@ async function buildCallerContext(phone: string, channel: Channel): Promise<Call
   const plusPhone  = '+' + cleanPhone
   const shortPhone = cleanPhone.replace(/^1/, '')
 
-  const { data: o } = await supabase.from('owners')
+  const { data: o } = await getSupabase().from('owners')
     .select('first_name, last_name, language, unit_number, association_code')
     .or([`phone.eq.${phone}`,`phone.eq.${plusPhone}`,`phone.eq.${shortPhone}`,
          `phone_2.eq.${phone}`,`phone_2.eq.${plusPhone}`,`phone_2.eq.${shortPhone}`,
@@ -659,25 +661,25 @@ async function buildCallerContext(phone: string, channel: Channel): Promise<Call
     language: o.language ?? 'en', name: `${o.first_name ?? ''} ${o.last_name ?? ''}`.trim() || 'there',
     unitId: o.unit_number, associationId: o.association_code }
 
-  const { data: t } = await supabase.from('association_tenants')
+  const { data: t } = await getSupabase().from('association_tenants')
     .select('first_name, last_name, language, unit_number, association_code')
     .or(`phone.eq.${phone},phone.eq.${plusPhone},phone.eq.${shortPhone}`).limit(1).maybeSingle()
   if (t) return { phone, channel, division: 'association', persona: 'association_tenant',
     language: t.language ?? 'en', name: `${t.first_name ?? ''} ${t.last_name ?? ''}`.trim() || 'there',
     unitId: t.unit_number, associationId: t.association_code }
 
-  const { data: b } = await supabase.from('board_members')
+  const { data: b } = await getSupabase().from('board_members')
     .select('first_name, last_name, language, association_code')
     .or(`phone.eq.${phone},phone.eq.${plusPhone},phone.eq.${shortPhone}`).limit(1).maybeSingle()
   if (b) return { phone, channel, division: 'association', persona: 'board_member',
     language: b.language ?? 'en', name: `${b.first_name ?? ''} ${b.last_name ?? ''}`.trim() || 'there',
     associationId: b.association_code }
 
-  const { data: v } = await supabase.from('vendor_directory').select('name, language, association_id').eq('phone', phone).single()
+  const { data: v } = await getSupabase().from('vendor_directory').select('name, language, association_id').eq('phone', phone).single()
   if (v) return { phone, channel, division: 'association', persona: 'vendor',
     language: v.language ?? 'en', name: v.name, associationId: v.association_id }
 
-  const { data: ag } = await supabase.from('real_estate_agents').select('id, first_name, last_name, language').eq('phone', phone).single()
+  const { data: ag } = await getSupabase().from('real_estate_agents').select('id, first_name, last_name, language').eq('phone', phone).single()
   if (ag) return { phone, channel, division: 'association', persona: 'real_estate_agent',
     language: ag.language ?? 'en', name: `${ag.first_name} ${ag.last_name}` }
 
@@ -947,25 +949,25 @@ async function getMaiaIntelligentResponse(ctx: CallerContext, message: string): 
     dbContext += await buildRentvineContext(ctx)
 
   if (ctx.associationId) {
-    const { data: assoc } = await supabase.from('associations')
+    const { data: assoc } = await getSupabase().from('associations')
       .select('association_name, association_type, service_type, florida_statute')
       .eq('association_code', ctx.associationId).single()
     if (assoc) dbContext += `\nAssociation: ${assoc.association_name} (${assoc.association_type}, ${assoc.service_type})`
   }
 
   if (isBoard && ctx.associationId) {
-    const { data: board } = await supabase.from('board_members')
+    const { data: board } = await getSupabase().from('board_members')
       .select('first_name, last_name, position, email').eq('association_code', ctx.associationId).eq('active', true)
     if (board?.length) dbContext += `\nBoard: ${board.map(b => `${b.first_name} ${b.last_name} (${b.position}) ${b.email}`).join(', ')}`
   }
 
   if (!isMaintenance && !isPayment && !isParking) {
-    const { data: faqs } = await supabase.from('association_faq').select('question, answer').limit(5)
+    const { data: faqs } = await getSupabase().from('association_faq').select('question, answer').limit(5)
     if (faqs?.length) dbContext += '\nFAQ:\n' + faqs.map(f => `Q: ${f.question}\nA: ${f.answer}`).join('\n')
   }
 
   if ((isDocument) && ctx.associationId) {
-    const { data: folders } = await supabase.from('association_drive_folders')
+    const { data: folders } = await getSupabase().from('association_drive_folders')
       .select('folder_type, drive_link').eq('association_code', ctx.associationId).not('drive_link', 'is', null)
     if (folders?.length) dbContext += `\nDrive Folders: ${folders.map(f => `${f.folder_type}: ${f.drive_link}`).join(', ')}`
   }
@@ -999,10 +1001,10 @@ async function getMaiaIntelligentResponse(ctx: CallerContext, message: string): 
 
   if (isMaintenance) {
     const isBookkeeping = ctx.associationId &&
-      (await supabase.from('associations').select('service_type').eq('association_code', ctx.associationId).single()).data?.service_type === 'bookkeeping'
+      (await getSupabase().from('associations').select('service_type').eq('association_code', ctx.associationId).single()).data?.service_type === 'bookkeeping'
 
     if (isBookkeeping) {
-      const { data: board } = await supabase.from('board_members').select('email').eq('association_code', ctx.associationId ?? '').eq('active', true)
+      const { data: board } = await getSupabase().from('board_members').select('email').eq('association_code', ctx.associationId ?? '').eq('active', true)
       if (board?.length) {
         await notifyTeamByEmail(board.map(b => b.email).filter(Boolean).join(','),
           `Maintenance Request — Unit ${ctx.unitId ?? 'Unknown'} — ${ctx.name}`,
@@ -1066,7 +1068,7 @@ async function getMaiaIntelligentResponse(ctx: CallerContext, message: string): 
   // Board member check
   let isBoardMember = false, boardPosition = ''
   const cleanP = ctx.phone.replace(/\D/g, '')
-  const { data: bm } = await supabase.from('board_members').select('position')
+  const { data: bm } = await getSupabase().from('board_members').select('position')
     .or(`phone.eq.${ctx.phone},phone.eq.+${cleanP}`).limit(1).maybeSingle()
   if (bm) { isBoardMember = true; boardPosition = bm.position ?? 'Board Member' }
 
@@ -1162,8 +1164,8 @@ async function handlePaymentInquiry(ctx: CallerContext): Promise<string> {
 
 async function handleAccountInfo(ctx: CallerContext): Promise<string> {
   const [{ data: reqs }, { data: vehicles }] = await Promise.all([
-    supabase.from('sticker_requests').select('id, status').eq('owner_id', ctx.phone).order('created_at', { ascending: false }).limit(3),
-    supabase.from('vehicles').select('make, model, plate').eq('owner_id', ctx.phone).eq('active', true),
+    getSupabase().from('sticker_requests').select('id, status').eq('owner_id', ctx.phone).order('created_at', { ascending: false }).limit(3),
+    getSupabase().from('vehicles').select('make, model, plate').eq('owner_id', ctx.phone).eq('active', true),
   ])
   const vList = vehicles?.map(v => `• ${v.make} ${v.model} — ${v.plate}`).join('\n') ?? 'None registered'
   const rList = reqs?.map(r => `• ${r.id.slice(0, 8)} — ${r.status}`).join('\n') ?? 'None'
@@ -1205,7 +1207,7 @@ async function continueAgentFlow(ctx: CallerContext, state: ConversationState, m
   if (step === 'awaiting_representation') {
     for (const [num, repType] of [['1','owner'],['2','buyer'],['3','tenant']] as [string,string][]) {
       if (msg === num) {
-        const { data: req } = await supabase.from('agent_requests').insert({
+        const { data: req } = await getSupabase().from('agent_requests').insert({
           agent_id: await getAgentId(ctx.phone), representation_type: repType,
           status: repType === 'owner' ? 'awaiting_documents' : 'new',
           channel: ctx.channel, created_at: new Date().toISOString(),
@@ -1220,8 +1222,8 @@ async function continueAgentFlow(ctx: CallerContext, state: ConversationState, m
   }
 
   if (step === 'awaiting_address') {
-    await supabase.from('agent_requests').update({ property_address: msg }).eq('id', data.requestId)
-    const { data: req } = await supabase.from('agent_requests').select('listing_agreement_status').eq('id', data.requestId).single()
+    await getSupabase().from('agent_requests').update({ property_address: msg }).eq('id', data.requestId)
+    const { data: req } = await getSupabase().from('agent_requests').select('listing_agreement_status').eq('id', data.requestId).single()
     if (req?.listing_agreement_status === 'uploaded' || req?.listing_agreement_status === 'approved') {
       await clearConversationState(ctx.phone)
       void maybeRequestFeedback(ctx.phone, ctx, 'agent_identification', ctx.channel)
@@ -1232,7 +1234,7 @@ async function continueAgentFlow(ctx: CallerContext, state: ConversationState, m
   }
 
   if (step === 'awaiting_listing_upload') {
-    const { data: req } = await supabase.from('agent_requests').select('listing_agreement_status').eq('id', data.requestId).single()
+    const { data: req } = await getSupabase().from('agent_requests').select('listing_agreement_status').eq('id', data.requestId).single()
     if (req?.listing_agreement_status === 'uploaded' || req?.listing_agreement_status === 'approved') {
       await clearConversationState(ctx.phone)
       void maybeRequestFeedback(ctx.phone, ctx, 'agent_identification', ctx.channel)
@@ -1242,7 +1244,7 @@ async function continueAgentFlow(ctx: CallerContext, state: ConversationState, m
   }
 
   if (step === 'awaiting_buyer_details' || step === 'awaiting_tenant_details') {
-    await supabase.from('agent_requests').update({ request_notes: msg, status: 'documents_received' }).eq('id', data.requestId)
+    await getSupabase().from('agent_requests').update({ request_notes: msg, status: 'documents_received' }).eq('id', data.requestId)
     await clearConversationState(ctx.phone)
     void maybeRequestFeedback(ctx.phone, ctx, 'agent_identification', ctx.channel)
     return AGENT_MSG.requestLogged(lang, data.requestId as string)
@@ -1253,7 +1255,7 @@ async function continueAgentFlow(ctx: CallerContext, state: ConversationState, m
 }
 
 async function getAgentId(phone: string): Promise<string | null> {
-  const { data } = await supabase.from('real_estate_agents').select('id').eq('phone', phone).single()
+  const { data } = await getSupabase().from('real_estate_agents').select('id').eq('phone', phone).single()
   return data?.id ?? null
 }
 
@@ -1270,34 +1272,34 @@ async function notifyAgentTeam(ctx: CallerContext, repType: string, reqId: strin
 // ============================================================
 
 async function getConversationState(phone: string): Promise<ConversationState | null> {
-  const { data } = await supabase.from('conversation_state').select('*').eq('phone_number', phone).single()
+  const { data } = await getSupabase().from('conversation_state').select('*').eq('phone_number', phone).single()
   return data
 }
 
 async function saveConversationState(phone: string, flow: string, step: string, tempData: Record<string, unknown>) {
-  await supabase.from('conversation_state').upsert(
+  await getSupabase().from('conversation_state').upsert(
     { phone_number: phone, current_flow: flow, current_step: step, temporary_data_json: tempData, updated_at: new Date().toISOString() },
     { onConflict: 'phone_number' })
 }
 
 async function clearConversationState(phone: string) {
-  await supabase.from('conversation_state').upsert(
+  await getSupabase().from('conversation_state').upsert(
     { phone_number: phone, current_flow: 'idle', current_step: 'idle', temporary_data_json: {}, updated_at: new Date().toISOString() },
     { onConflict: 'phone_number' })
 }
 
 async function getStickerStatus(ctx: CallerContext): Promise<string> {
-  const { data } = await supabase.from('sticker_requests').select('id, status, payment_status')
+  const { data } = await getSupabase().from('sticker_requests').select('id, status, payment_status')
     .eq('owner_id', ctx.phone).order('created_at', { ascending: false }).limit(1).single()
   if (!data) return translate(ctx.language, { en:`No sticker requests found. Reply *1* from the menu to start.`, es:`Sin solicitudes. Responde *1* para iniciar.`, pt:`Nenhuma solicitação. Responda *1* para iniciar.` })
   return translate(ctx.language, { en:`🚗 Request ${data.id.slice(0,8)} — ${data.status} — Payment: ${data.payment_status}`, es:`🚗 Solicitud ${data.id.slice(0,8)} — ${data.status}`, pt:`🚗 Solicitação ${data.id.slice(0,8)} — ${data.status}` })
 }
 
 async function createStickerRequest(ctx: CallerContext, vehicle: Record<string, string>) {
-  const { data: v } = await supabase.from('vehicles').upsert(
+  const { data: v } = await getSupabase().from('vehicles').upsert(
     { owner_id: ctx.phone, make: vehicle.make, model: vehicle.model, color: vehicle.color, plate: vehicle.plate, active: true },
     { onConflict: 'owner_id,plate' }).select().single()
-  await supabase.from('sticker_requests').insert({
+  await getSupabase().from('sticker_requests').insert({
     owner_id: ctx.phone, vehicle_id: v?.id, association_id: ctx.associationId,
     request_source: ctx.channel, status: 'pending', payment_status: 'unpaid',
     payment_required: true, created_at: new Date().toISOString(),
@@ -1305,7 +1307,7 @@ async function createStickerRequest(ctx: CallerContext, vehicle: Record<string, 
 }
 
 async function createAssociationMaintenanceRequest(ctx: CallerContext, description: string) {
-  await supabase.from('maintenance_requests').insert({
+  await getSupabase().from('maintenance_requests').insert({
     owner_id: ctx.phone, unit_id: ctx.unitId, association_id: ctx.associationId, description,
     urgency: description.toLowerCase().includes('emergency') ? 'emergency' : 'medium',
     status: 'open', created_at: new Date().toISOString(),
@@ -1329,7 +1331,7 @@ async function createRentvineWorkOrder(ctx: CallerContext, description: string):
 }
 
 async function logConversation(phone: string, inbound: string, outbound: string, ctx: CallerContext) {
-  await supabase.from('general_conversations').insert({
+  await getSupabase().from('general_conversations').insert({
     session_id:    `twilio-${phone}-${Date.now()}`,
     phone_number:  phone,
     contact_phone: phone,

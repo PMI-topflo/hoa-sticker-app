@@ -14,11 +14,13 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendComplianceDigestEmail } from '@/lib/email/compliance-digest';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { persistSession: false } }
-);
+function getSupabase() {
+  const env = process.env;
+  const url = env['NEXT_PUBLIC_SUPABASE_URL'];
+  const key = env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error('Supabase env vars missing');
+  return createClient(url, key, { auth: { persistSession: false } });
+}
 
 interface AlertRow {
   account_number: string;
@@ -169,7 +171,7 @@ export async function GET(req: Request) {
   );
 
   if (toInsert.length) {
-    await supabase.from('compliance_alerts').insert(toInsert);
+    await getSupabase().from('compliance_alerts').insert(toInsert);
   }
 
   // Auto-resolve alerts whose underlying record is no longer expiring (e.g. lease was renewed)
