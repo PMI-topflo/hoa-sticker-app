@@ -95,6 +95,22 @@ const translations = {
     verifyNote: "Verify these details match your document before continuing.",
     leaseRequired: "Please upload your lease or purchase agreement to continue.",
     parseError: "We couldn't read your document clearly. Please upload a higher-quality scan or photo and try again.",
+    areYouMarried: "Are the above co-applicants a married couple?",
+    yes: "Yes",
+    no: "No",
+    marriedCertWillBeRequired: "A marriage certificate will be required in the Documents step.",
+    otherOccupants: "Other Occupants",
+    otherOccupantsHint: "List all other people who will reside in the unit. Adults 18+ will receive an invitation to complete their screening.",
+    occupantName: "Full Name",
+    occupantAge: "Age",
+    occupantEmail: "Email (18+ only)",
+    addOccupant: "+ Add Occupant",
+    sendInvite: "Send invitation to co-applicant",
+    inviteSentLabel: "Invitation sent ✓",
+    sendingInvite: "Sending…",
+    rulesTitle: "Rules & Regulations",
+    rulesConsent: "I have read and agree to abide by the Rules and Regulations of",
+    rulesRequired: "Please confirm you agree to the Rules & Regulations to continue.",
   },
   es: {
     title: "Solicitud de Residente",
@@ -172,6 +188,22 @@ const translations = {
     verifyNote: "Verifique que estos datos coincidan con su contrato antes de continuar.",
     leaseRequired: "Por favor suba su contrato para continuar.",
     parseError: "No pudimos leer su documento claramente. Por favor suba una copia más nítida e inténtelo de nuevo.",
+    areYouMarried: "¿Los co-solicitantes anteriores son un matrimonio?",
+    yes: "Sí",
+    no: "No",
+    marriedCertWillBeRequired: "Se requerirá un certificado de matrimonio en el paso de Documentos.",
+    otherOccupants: "Otros Ocupantes",
+    otherOccupantsHint: "Liste todas las demás personas que residirán en la unidad. Los adultos de 18+ recibirán una invitación para completar su verificación.",
+    occupantName: "Nombre Completo",
+    occupantAge: "Edad",
+    occupantEmail: "Correo (solo mayores de 18)",
+    addOccupant: "+ Agregar Ocupante",
+    sendInvite: "Enviar invitación al co-solicitante",
+    inviteSentLabel: "Invitación enviada ✓",
+    sendingInvite: "Enviando…",
+    rulesTitle: "Reglamento",
+    rulesConsent: "He leído y acepto cumplir con el Reglamento de",
+    rulesRequired: "Por favor confirme que acepta el Reglamento para continuar.",
   },
   pt: {
     title: "Solicitação de Residente",
@@ -249,6 +281,22 @@ const translations = {
     verifyNote: "Verifique se estes dados correspondem ao seu contrato antes de continuar.",
     leaseRequired: "Por favor envie seu contrato para continuar.",
     parseError: "Não conseguimos ler seu documento claramente. Por favor envie uma cópia mais nítida e tente novamente.",
+    areYouMarried: "Os co-solicitantes acima são um casal casado?",
+    yes: "Sim",
+    no: "Não",
+    marriedCertWillBeRequired: "Uma certidão de casamento será exigida na etapa de Documentos.",
+    otherOccupants: "Outros Ocupantes",
+    otherOccupantsHint: "Liste todas as outras pessoas que residirão na unidade. Adultos de 18+ receberão um convite para concluir sua verificação.",
+    occupantName: "Nome Completo",
+    occupantAge: "Idade",
+    occupantEmail: "E-mail (somente maiores de 18)",
+    addOccupant: "+ Adicionar Ocupante",
+    sendInvite: "Enviar convite ao co-solicitante",
+    inviteSentLabel: "Convite enviado ✓",
+    sendingInvite: "Enviando…",
+    rulesTitle: "Regulamento",
+    rulesConsent: "Eu li e concordo em cumprir o Regulamento de",
+    rulesRequired: "Por favor confirme que concorda com o Regulamento para continuar.",
   },
   fr: {
     title: "Demande de Résidence",
@@ -326,6 +374,22 @@ const translations = {
     verifyNote: "Vérifiez que ces informations correspondent à votre document avant de continuer.",
     leaseRequired: "Veuillez télécharger votre bail pour continuer.",
     parseError: "Nous n'avons pas pu lire votre document clairement. Veuillez télécharger une copie plus nette et réessayer.",
+    areYouMarried: "Les co-demandeurs ci-dessus sont-ils un couple marié ?",
+    yes: "Oui",
+    no: "Non",
+    marriedCertWillBeRequired: "Un certificat de mariage sera requis à l'étape Documents.",
+    otherOccupants: "Autres Occupants",
+    otherOccupantsHint: "Listez toutes les autres personnes qui résideront dans l'unité. Les adultes de 18+ recevront une invitation à compléter leur vérification.",
+    occupantName: "Nom Complet",
+    occupantAge: "Âge",
+    occupantEmail: "E-mail (18+ seulement)",
+    addOccupant: "+ Ajouter un Occupant",
+    sendInvite: "Envoyer une invitation au co-demandeur",
+    inviteSentLabel: "Invitation envoyée ✓",
+    sendingInvite: "Envoi en cours…",
+    rulesTitle: "Règlement Intérieur",
+    rulesConsent: "J'ai lu et j'accepte de respecter le Règlement Intérieur de",
+    rulesRequired: "Veuillez confirmer votre accord avec le Règlement Intérieur pour continuer.",
   },
   he: {
     title: "בקשת מגורים",
@@ -403,6 +467,22 @@ const translations = {
     verifyNote: "ודא שפרטים אלה תואמים את המסמך שלך לפני המשך.",
     leaseRequired: "אנא העלה את החוזה כדי להמשיך.",
     parseError: "לא הצלחנו לקרוא את המסמך בבירור. אנא העלה עותק ברור יותר ונסה שוב.",
+    areYouMarried: "האם המגישים המשותפים לעיל הם זוג נשוי?",
+    yes: "כן",
+    no: "לא",
+    marriedCertWillBeRequired: "תעודת נישואין תידרש בשלב המסמכים.",
+    otherOccupants: "דיירים נוספים",
+    otherOccupantsHint: "רשום את כל שאר האנשים שיגורו ביחידה. מבוגרים מעל 18 יקבלו הזמנה להשלים את הבדיקה שלהם.",
+    occupantName: "שם מלא",
+    occupantAge: "גיל",
+    occupantEmail: "אימייל (מעל 18 בלבד)",
+    addOccupant: "+ הוסף דייר",
+    sendInvite: "שלח הזמנה למגיש המשותף",
+    inviteSentLabel: "הזמנה נשלחה ✓",
+    sendingInvite: "שולח…",
+    rulesTitle: "תקנון ותקנות",
+    rulesConsent: "קראתי ואני מסכים לציית לתקנון ולתקנות של",
+    rulesRequired: "אנא אשר הסכמתך לתקנון כדי להמשיך.",
   },
   ru: {
     title: "Заявка на проживание",
@@ -480,6 +560,22 @@ const translations = {
     verifyNote: "Убедитесь, что эти данные соответствуют вашему документу, прежде чем продолжить.",
     leaseRequired: "Пожалуйста, загрузите договор для продолжения.",
     parseError: "Нам не удалось прочитать ваш документ. Пожалуйста, загрузите более чёткую копию и попробуйте снова.",
+    areYouMarried: "Являются ли указанные со-заявители супружеской парой?",
+    yes: "Да",
+    no: "Нет",
+    marriedCertWillBeRequired: "Свидетельство о браке потребуется на шаге Документы.",
+    otherOccupants: "Другие жильцы",
+    otherOccupantsHint: "Перечислите всех других людей, которые будут проживать в квартире. Взрослые 18+ получат приглашение пройти проверку.",
+    occupantName: "Полное имя",
+    occupantAge: "Возраст",
+    occupantEmail: "Электронная почта (только для 18+)",
+    addOccupant: "+ Добавить жильца",
+    sendInvite: "Отправить приглашение со-заявителю",
+    inviteSentLabel: "Приглашение отправлено ✓",
+    sendingInvite: "Отправка…",
+    rulesTitle: "Правила и нормы",
+    rulesConsent: "Я прочитал и согласен соблюдать Правила и нормы",
+    rulesRequired: "Пожалуйста, подтвердите согласие с Правилами и нормами для продолжения.",
   },
 };
 
@@ -679,6 +775,11 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
   const [paying, setPaying]           = useState(false);
   const [langOpen, setLangOpen]       = useState(false);
   const [applicationId, setApplicationId] = useState(null);
+  const [isMarriedCouple, setIsMarriedCouple] = useState<boolean | null>(null);
+  const [occupants, setOccupants] = useState<{name: string; age: string; email: string}[]>([]);
+  const [rulesAgreed, setRulesAgreed] = useState(false);
+  const [inviteSent, setInviteSent] = useState(false);
+  const [inviteSending, setInviteSending] = useState(false);
 
   const isCouple     = appType === "couple";
   const hasCert      = coupleOption === "yes";
@@ -738,6 +839,13 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
         .then((units: string[]) => setAssocUnits(units))
         .catch(() => setAssocUnits([]));
     }
+    // Auto-select application type based on number of tenants on lease
+    if (leaseData.extracted.tenants.length >= 2) {
+      setAppType("couple");
+      setApplicants((prev) => prev.length < 2 ? [...prev, {}] : prev);
+    } else if (leaseData.extracted.tenants.length === 1 && !appType) {
+      setAppType("individual");
+    }
     setStep(1);
   };
 
@@ -756,6 +864,30 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
 
   const updatePrincipal = (idx: number, key: string, val: string) =>
     setPrincipals((prev) => { const n = [...prev]; n[idx] = { ...n[idx], [key]: val }; return n; });
+
+  const updateOccupant = (idx: number, key: string, val: string) =>
+    setOccupants((prev) => { const n = [...prev]; n[idx] = { ...n[idx], [key]: val }; return n; });
+
+  const sendCoApplicantInvite = async () => {
+    if (!applicants[1]?.email) return;
+    setInviteSending(true);
+    try {
+      await fetch("/api/apply/invite-coapplicant", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          primaryName: `${applicants[0]?.firstName ?? ""} ${applicants[0]?.lastName ?? ""}`.trim(),
+          coApplicantName: `${applicants[1]?.firstName ?? ""} ${applicants[1]?.lastName ?? ""}`.trim(),
+          coApplicantEmail: applicants[1].email,
+          association: leaseData?.matched?.name ?? association,
+          applicationId,
+        }),
+      });
+      setInviteSent(true);
+    } catch { /* non-fatal */ } finally {
+      setInviteSending(false);
+    }
+  };
 
   // ── Document upload to Supabase Storage ────────────────────────────────────
   const uploadDoc = useCallback(async (file: File, docType: string) => {
@@ -806,6 +938,7 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
       if (!appType)                  { setError(t.selectType); return; }
       if (isCouple && !coupleOption) { setError(t.selectType); return; }
     }
+    if (step === 3 && !rulesAgreed) { setError(t.rulesRequired); return; }
     if (step === 3 && !agreed) { setError(t.consentRequired); return; }
     setStep((s) => s + 1);
   };
@@ -831,6 +964,9 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
         docs_lease_url:         leaseData?.storagePath ?? null,
         language:         lang,
         stripe_payment_status: "pending",
+        is_married_couple: isMarriedCouple,
+        occupants: occupants.length > 0 ? occupants : null,
+        rules_agreed_at: new Date().toISOString(),
       };
 
       let appId = applicationId;
@@ -846,6 +982,22 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
 
       // Primary applicant email
       const applicantEmail = applicants[0]?.email ?? "";
+
+      // Send invites to 18+ occupants who have emails
+      const adultOccupants = occupants.filter(o => parseInt(o.age) >= 18 && o.email);
+      for (const occ of adultOccupants) {
+        fetch("/api/apply/invite-coapplicant", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            primaryName: `${applicants[0]?.firstName ?? ""} ${applicants[0]?.lastName ?? ""}`.trim(),
+            coApplicantName: occ.name,
+            coApplicantEmail: occ.email,
+            association: leaseData?.matched?.name ?? association,
+            applicationId: appId,
+          }),
+        }).catch(() => {});
+      }
 
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
@@ -956,7 +1108,7 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
         <div style={{ padding: "32px 36px 28px" }}>
 
           {/* ══ STEP 0: Upload Lease / Purchase Agreement ═══════════════════ */}
-          {step === 0 && !leaseConfirmed && (
+          {step === 0 && (
             <div>
               <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6, fontFamily: "monospace" }}>
                 {t.uploadLease}
@@ -1165,9 +1317,67 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
                   </button>
                 </div>
               ) : (
-                applicants.map((a, idx) => (
-                  <ApplicantFields key={idx} index={idx} t={t} data={a} onChange={updateApplicant} units={assocUnits} />
-                ))
+                <>
+                  {applicants.map((a, idx) => (
+                    <ApplicantFields key={idx} index={idx} t={t} data={a} onChange={updateApplicant} units={assocUnits} />
+                  ))}
+
+                  {/* Married couple question — shown when 2+ applicants on the form */}
+                  {applicants.length >= 2 && (
+                    <div style={{ background: "#fafaf9", borderRadius: 4, padding: 18, border: "1px solid #e5e7eb", marginBottom: 14 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "#0d0d0d", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "monospace" }}>
+                        {t.areYouMarried}
+                      </div>
+                      <div style={{ display: "flex", gap: 10 }}>
+                        {([{ val: true, label: t.yes }, { val: false, label: t.no }] as const).map(({ val, label }) => (
+                          <button
+                            key={String(val)}
+                            onClick={() => setIsMarriedCouple(val)}
+                            style={{ flex: 1, padding: "10px 16px", background: isMarriedCouple === val ? "#f26a1b" : "#fff", color: isMarriedCouple === val ? "#fff" : "#6b7280", border: `1.5px solid ${isMarriedCouple === val ? "#f26a1b" : "#e5e7eb"}`, borderRadius: 3, fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all 0.18s" }}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                      {isMarriedCouple === true && (
+                        <div style={{ marginTop: 10, fontSize: 12, color: "#1a6b3c", fontWeight: 600 }}>✓ {t.marriedCertWillBeRequired}</div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Co-applicant invite — shown when 2nd applicant has an email */}
+                  {applicants.length >= 2 && applicants[1]?.email && (
+                    <div style={{ marginBottom: 14, padding: "12px 16px", background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 4 }}>
+                      <div style={{ fontSize: 12, color: "#0369a1", marginBottom: 8 }}>
+                        📧 {applicants[1].firstName || (t.applicant + " 2")} — {applicants[1].email}
+                      </div>
+                      <button
+                        onClick={sendCoApplicantInvite}
+                        disabled={inviteSent || inviteSending}
+                        style={{ padding: "9px 16px", background: inviteSent ? "#1a6b3c" : "#0369a1", color: "#fff", border: "none", borderRadius: 3, fontSize: 12, fontWeight: 600, cursor: inviteSent ? "default" : "pointer", opacity: inviteSending ? 0.7 : 1 }}
+                      >
+                        {inviteSending ? t.sendingInvite : inviteSent ? t.inviteSentLabel : t.sendInvite}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Other Occupants */}
+                  <div style={{ background: "#fafaf9", borderRadius: 4, padding: 18, border: "1px solid #e5e7eb", marginTop: 8 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#0d0d0d", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "monospace" }}>{t.otherOccupants}</div>
+                    <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 14, lineHeight: 1.5 }}>{t.otherOccupantsHint}</div>
+                    {occupants.map((o, idx) => (
+                      <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 70px 1fr auto", gap: 8, marginBottom: 8, alignItems: "center" }}>
+                        <input type="text" placeholder={t.occupantName} value={o.name} onChange={(e) => updateOccupant(idx, "name", e.target.value)} style={{ ...inp, padding: "8px 10px" }} />
+                        <input type="number" placeholder={t.occupantAge} value={o.age} min={0} max={120} onChange={(e) => updateOccupant(idx, "age", e.target.value)} style={{ ...inp, padding: "8px 10px" }} />
+                        <input type="email" placeholder={t.occupantEmail} value={o.email} onChange={(e) => updateOccupant(idx, "email", e.target.value)} style={{ ...inp, padding: "8px 10px", opacity: parseInt(o.age) >= 18 ? 1 : 0.35 }} disabled={!!o.age && parseInt(o.age) < 18} />
+                        <button onClick={() => setOccupants((prev) => prev.filter((_, i) => i !== idx))} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 18, padding: "0 4px" }}>✕</button>
+                      </div>
+                    ))}
+                    <button onClick={() => setOccupants((prev) => [...prev, { name: "", age: "", email: "" }])} style={{ fontSize: 13, fontWeight: 600, color: "#f26a1b", background: "none", border: "1.5px dashed #f26a1b", borderRadius: 3, padding: "9px 18px", cursor: "pointer", width: "100%", marginTop: 4 }}>
+                      {t.addOccupant}
+                    </button>
+                  </div>
+                </>
               )}
             </div>
           )}
@@ -1177,9 +1387,24 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
             <div>
               <UploadBox label={t.govId}       t={t} uploaded={docs.govId}       uploading={uploading.govId}       onUpload={(f) => uploadDoc(f, "govId")} />
               <UploadBox label={t.proofIncome}  t={t} uploaded={docs.proofIncome} uploading={uploading.proofIncome} onUpload={(f) => uploadDoc(f, "proofIncome")} />
-              {isCouple && hasCert && (
+              {(isCouple && hasCert || isMarriedCouple === true) && (
                 <UploadBox label={t.marriageCert} t={t} uploaded={docs.marriageCert} uploading={uploading.marriageCert} onUpload={(f) => uploadDoc(f, "marriageCert")} />
               )}
+              {/* Rules & Regulations */}
+              <div style={{ background: "#fafaf9", borderRadius: 4, padding: 18, border: "1px solid #e5e7eb", marginBottom: 10 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#0d0d0d", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "monospace" }}>{t.rulesTitle}</div>
+                <p style={{ fontSize: 13, color: "#6b7280", lineHeight: 1.6, margin: "0 0 14px" }}>
+                  {t.rulesConsent} <strong>{association || leaseData?.matched?.name || "your association"}</strong>.
+                </p>
+                <div onClick={() => setRulesAgreed(!rulesAgreed)} style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" }}>
+                  <div style={{ width: 18, height: 18, borderRadius: 2, border: `2px solid ${rulesAgreed ? "#f26a1b" : "#d1d5db"}`, background: rulesAgreed ? "#f26a1b" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1, transition: "all 0.15s" }}>
+                    {rulesAgreed && <span style={{ color: "#fff", fontSize: 11, fontWeight: 700, lineHeight: 1 }}>✓</span>}
+                  </div>
+                  <span style={{ fontSize: 13, color: "#0d0d0d", fontWeight: rulesAgreed ? 600 : 400, lineHeight: 1.5 }}>
+                    {t.rulesConsent} <strong>{association || leaseData?.matched?.name || "your association"}</strong>
+                  </span>
+                </div>
+              </div>
               <div style={{ background: "#fafaf9", borderRadius: 4, padding: 18, border: "1px solid #e5e7eb", marginTop: 8 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: "#0d0d0d", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "monospace" }}>{t.signature}</div>
                 <p style={{ fontSize: 13, color: "#6b7280", lineHeight: 1.6, margin: "0 0 14px" }}>{t.signatureConsent}</p>
@@ -1265,7 +1490,7 @@ export default function ApplicationForm({ preselectedAssociation = null }) {
           {/* Navigation */}
           {step < 4 && (
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 24, gap: 12 }}>
-              {step > 1 ? (
+              {step > 0 ? (
                 <button onClick={() => { setStep((s) => s - 1); setError(""); }} style={{ padding: "11px 22px", background: "#f3f4f6", color: "#6b7280", border: "none", borderRadius: 3, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                   ← {t.back}
                 </button>
