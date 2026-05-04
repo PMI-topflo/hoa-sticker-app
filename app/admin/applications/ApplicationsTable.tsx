@@ -48,7 +48,7 @@ export type Application = {
   occupants: Occupant[] | null;
   rules_signature: string | null;
   rules_agreed_at: string | null;
-  board_decision: 'approved' | 'rejected' | 'pending' | null;
+  board_decision: 'approved' | 'rejected' | 'pending' | 'board_review' | null;
   board_decided_at: string | null;
   board_notes: string | null;
 };
@@ -61,7 +61,7 @@ interface Props {
 // Helpers
 // ---------------------------------------------------------------------------
 
-type FilterTab = 'all' | 'pending' | 'approved' | 'rejected';
+type FilterTab = 'all' | 'pending' | 'board_review' | 'approved' | 'rejected';
 
 function getApplicantName(app: Application): string {
   if (app.app_type === 'commercial' && app.entity_name) return app.entity_name;
@@ -134,6 +134,12 @@ function DecisionBadge({ decision }: { decision: string | null }) {
         Rejected
       </span>
     );
+  if (decision === 'board_review')
+    return (
+      <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800">
+        Board Review
+      </span>
+    );
   return (
     <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700">
       Pending
@@ -147,12 +153,35 @@ function DecisionBadge({ decision }: { decision: string | null }) {
 
 function DetailPanel({ app, onDecisionSaved }: { app: Application; onDecisionSaved: (updated: Partial<Application>) => void }) {
   const [decision, setDecision] = useState<'approved' | 'rejected' | 'pending'>(
-    app.board_decision ?? 'pending'
+    (app.board_decision === 'board_review' ? 'pending' : app.board_decision) ?? 'pending'
   );
   const [notes, setNotes] = useState(app.board_notes ?? '');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+
+  const [sendingToBoard, setSendingToBoard] = useState(false);
+  const [sendToBoardResult, setSendToBoardResult] = useState<string | null>(null);
+  const [sendToBoardError, setSendToBoardError] = useState<string | null>(null);
+
+  async function handleSendToBoard() {
+    setSendingToBoard(true);
+    setSendToBoardResult(null);
+    setSendToBoardError(null);
+    try {
+      const res = await fetch(`/api/admin/applications/${app.id}/send-to-board`, {
+        method: 'POST',
+      });
+      const json = await res.json();
+      if (!res.ok || !json.ok) throw new Error(json.error ?? 'Failed to send to board');
+      setSendToBoardResult(`Sent to ${json.sent} board member${json.sent === 1 ? '' : 's'}`);
+      onDecisionSaved({ board_decision: 'board_review', board_decided_at: new Date().toISOString() });
+    } catch (err) {
+      setSendToBoardError(err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      setSendingToBoard(false);
+    }
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -305,6 +334,46 @@ function DetailPanel({ app, onDecisionSaved }: { app: Application; onDecisionSav
           Board Decision
         </h3>
         <div className="space-y-4">
+          {/* Send to Board Review */}
+          {(!app.board_decision || app.board_decision === 'pending') && (
+            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded border border-blue-100">
+              <button
+                onClick={handleSendToBoard}
+                disabled={sendingToBoard}
+                className="px-4 py-2 rounded bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              >
+                {sendingToBoard ? 'Sending…' : 'Send to Board Review'}
+              </button>
+              <span className="text-xs text-blue-600">
+                Emails board members a secure review link
+              </span>
+              {sendToBoardResult && (
+                <span className="text-sm text-green-600 font-medium">✓ {sendToBoardResult}</span>
+              )}
+              {sendToBoardError && (
+                <span className="text-sm text-red-600">{sendToBoardError}</span>
+              )}
+            </div>
+          )}
+          {app.board_decision === 'board_review' && (
+            <div className="p-3 bg-blue-50 rounded border border-blue-100 text-sm text-blue-700">
+              <span className="font-medium">Board Review in progress</span> — review links have been sent to board members.
+              {sendToBoardResult && (
+                <span className="ml-2 text-green-600 font-medium">✓ {sendToBoardResult}</span>
+              )}
+              {sendToBoardError && (
+                <span className="ml-2 text-red-600">{sendToBoardError}</span>
+              )}
+              <button
+                onClick={handleSendToBoard}
+                disabled={sendingToBoard}
+                className="ml-3 px-3 py-1 rounded border border-blue-400 text-blue-700 text-xs hover:bg-blue-100 disabled:opacity-50 transition-colors"
+              >
+                {sendingToBoard ? 'Resending…' : 'Resend'}
+              </button>
+            </div>
+          )}
+
           {/* Decision buttons */}
           <div className="flex gap-3">
             {(['approved', 'rejected', 'pending'] as const).map((d) => (
@@ -371,6 +440,7 @@ export function ApplicationsTable({ applications: initialApps }: Props) {
   const filtered = useMemo(() => {
     if (filter === 'all') return apps;
     if (filter === 'pending') return apps.filter((a) => !a.board_decision || a.board_decision === 'pending');
+    if (filter === 'board_review') return apps.filter((a) => a.board_decision === 'board_review');
     return apps.filter((a) => a.board_decision === filter);
   }, [apps, filter]);
 
@@ -383,6 +453,7 @@ export function ApplicationsTable({ applications: initialApps }: Props) {
   const tabs: { key: FilterTab; label: string }[] = [
     { key: 'all', label: 'All' },
     { key: 'pending', label: 'Pending Review' },
+    { key: 'board_review', label: 'Board Review' },
     { key: 'approved', label: 'Approved' },
     { key: 'rejected', label: 'Rejected' },
   ];
@@ -409,6 +480,7 @@ export function ApplicationsTable({ applications: initialApps }: Props) {
                 ? apps.filter((a) => !a.board_decision || a.board_decision === 'pending').length
                 : apps.filter((a) => a.board_decision === t.key).length}
             </span>
+
           </button>
         ))}
       </div>
