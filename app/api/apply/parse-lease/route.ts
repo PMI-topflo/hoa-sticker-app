@@ -198,14 +198,29 @@ async function saveLeaseToDrive(
   }
   if (!rootFolderId) throw new Error('No Drive root folder configured for this association')
 
-  // Find or create UNIT Docs → [unit number] or New Applications
+  // Find or create UNIT Docs → [account - address] or New Applications
   const unitDocsFolderId = await findOrCreateFolder(drive, 'UNIT Docs', rootFolderId)
-  const unitLabel = extracted.unit?.trim() || null
-  const targetFolderId = await findOrCreateFolder(
-    drive,
-    unitLabel ?? 'New Applications',
-    unitDocsFolderId
-  )
+  const unitNumber = extracted.unit?.trim() || null
+  let unitFolderLabel: string = 'New Applications'
+  if (unitNumber && matched) {
+    // Look up account_number + property address from homeowners
+    const { data: hw } = await supabaseAdmin
+      .from('homeowners')
+      .select('account_number, street_number, address')
+      .eq('association_code', matched.association_code)
+      .eq('unit_number', unitNumber)
+      .limit(1)
+      .maybeSingle()
+    if (hw?.account_number) {
+      const propertyAddress = [hw.street_number, hw.address].filter(Boolean).join(' ').trim()
+      unitFolderLabel = propertyAddress
+        ? `${hw.account_number} - ${propertyAddress}`
+        : hw.account_number
+    } else {
+      unitFolderLabel = unitNumber
+    }
+  }
+  const targetFolderId = await findOrCreateFolder(drive, unitFolderLabel, unitDocsFolderId)
 
   // Upload the file
   const { Readable } = await import('stream')

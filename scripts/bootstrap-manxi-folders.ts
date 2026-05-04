@@ -153,16 +153,18 @@ async function main() {
   // 1. Pull MANXI units from homeowners (deduped on account_number)
   const { data: rawUnits, error } = await supabase
     .from('homeowners')
-    .select('account_number, unit_number')
+    .select('account_number, unit_number, street_number, address')
     .eq('association_code', ASSOCIATION_CODE);
   if (error) throw error;
 
-  const units = new Map<string, { account_number: string; unit_number: string }>();
+  const units = new Map<string, { account_number: string; unit_number: string; property_address: string }>();
   for (const u of rawUnits!) {
     if (!units.has(u.account_number)) {
+      const propertyAddress = [u.street_number, u.address].filter(Boolean).join(' ').trim() || STREET;
       units.set(u.account_number, {
         account_number: u.account_number,
         unit_number: String(u.unit_number),
+        property_address: propertyAddress,
       });
     }
   }
@@ -205,7 +207,7 @@ async function main() {
   const sortedAccounts = Array.from(units.keys()).sort();
   for (const account of sortedAccounts) {
     const unit = units.get(account)!;
-    const target = `${account} - ${STREET} #${unit.unit_number}`;
+    const target = `${account} - ${unit.property_address}`;
     const matches = matchesByAccount.get(account) ?? [];
 
     if (matches.length === 0) {
@@ -256,7 +258,7 @@ async function main() {
 
   for (const account of sortedAccounts) {
     const unit = units.get(account)!;
-    const target = `${account} - ${STREET} #${unit.unit_number}`;
+    const target = `${account} - ${unit.property_address}`;
     const matches = matchesByAccount.get(account) ?? [];
 
     let unitFolderId: string;
